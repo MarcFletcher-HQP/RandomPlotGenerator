@@ -8,14 +8,36 @@ namespace RandomPlotGenerator;
 public class Point {
     
     public double[] coords;
+    public PointStatus status;
+    public double prob;
+
+
+    public enum PointStatus {
+        Undefined,
+        Excluded,
+        Selected
+    }
 
 
     public Point(double x, double y){
         
-        this.coords = new double[2];
-        
+        this.coords = new double[2];        
         this.coords[0] = x;
         this.coords[1] = y;
+
+        this.prob = 0.0;
+        this.status = PointStatus.Undefined;
+
+    }
+
+
+    public void SetInitialProb(double prob){
+        
+        if(prob < 0.0 || prob > 1.0){
+            throw new ArgumentException("Probability can not be less than 0.0 or greater than 1.0.")
+        }
+        
+        this.prob = prob;
     }
 
 
@@ -26,6 +48,21 @@ public class Point {
 
     public double GetY(){
         return coords[1];
+    }
+
+
+    public bool IsSelected(){
+        return status == PointStatus.Selected;
+    }
+
+
+    public bool IsExcluded(){
+        return status == PointStatus.Excluded;
+    }
+
+
+    public bool IsUndefined(){
+        return status == PointStatus.Undefined;
     }
 
 
@@ -44,4 +81,15 @@ public class Point {
         set { coords[i] = value; }
     }
 
+
+    public void Select(){
+        status = PointStatus.Selected;
+    }
+
+
+    public void Exclude(){
+        status = PointStatus.Excluded;
+    }
+
 }
+

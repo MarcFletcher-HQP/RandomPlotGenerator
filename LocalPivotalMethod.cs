@@ -8,6 +8,22 @@ namespace RandomPlotGenerator;
 
 public class LocalPivotalMethod {
 
+    private readonly Random rand;
+
+
+    public LocalPivotalMethod(int? seed){
+
+        if (seed is not null){
+            rand = new Random((int) seed);
+        } else {
+            rand = new Random();
+        }
+
+
+    }
+
+
+
 
     public List<Point> SamplePoints(List<Point> candidates, int size){
 
@@ -17,23 +33,51 @@ public class LocalPivotalMethod {
             return sample;
         }
 
+        if (candidates.Count <= size){
+
+            sample.AddRange(candidates.GetRange(0, candidates.Count));
+            return sample;
+
+        }
+
+
+        // Set initial probability for candidates
+
+        double initprob = (double) size / (double) candidates.Count;
+
+        foreach(Point pt in candidates){
+
+            pt.SetInitialProb(initprob);
+
+        }
+
 
         // Sort points into a KDTree
 
         KDTree tree = new KDTree();
-        tree.Build(candidates);
+        tree.Build(candidates, null);
 
 
-        double initprob = 1 / (double) size;
 
-        List<double> prob = new List<double>(candidates.Count);
+        while(sample.Count < size){
 
-        for(int i = 0; i < prob.Count; i++){
-            prob[i] = initprob;
+            // Randomly pick a point, find it in the tree and find the nearest neighbour to that point.
+
+            int index = rand.Next();
+
+            Point point;
+
+            tree.SearchNN(candidates[index], out point);
+
+            
+
+
+
         }
 
 
-        // Randomly pick a point
+
+
 
 
 

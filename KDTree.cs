@@ -8,15 +8,21 @@ namespace RandomPlotGenerator;
 
 public class KDTree {
 
-    private KDNode root;
+    private KDNode? root;
     private int Count;
+    private readonly int DefaultLeafSize = 5;
+    private readonly double DefaultThreshold = 0.1;
 
 
     // Build (root)
 
-    public void Build(List<Point> points){
+    public void Build(List<Point> points, int? leafsize){
 
-        root = BuildNode(points, 0);
+        if(leafsize is null){
+           leafsize = DefaultLeafSize; 
+        }
+
+        root = BuildNode(points, 0, (int) leafsize);
         Count = points.Count;
 
     }
@@ -24,11 +30,11 @@ public class KDTree {
 
     // BuildNode
 
-    private KDNode BuildNode(List<Point> points, int depth){
+    private KDNode BuildNode(List<Point> points, int depth, int leafsize){
 
         if(points.Count == 0){
 
-            return null;
+            throw new ArgumentException("No points provided to BuildNode!");
 
         }
 
@@ -36,63 +42,115 @@ public class KDTree {
         int dimension = depth % 2;  // Limiting this code to 2D
         points.Sort(new PointComparer(dimension));
 
-
-        // find the median node
-
         int medianIdx = (int) points.Count / 2;
         KDNode node = new KDNode(points[medianIdx], depth);
 
 
-        // Continue building nodes
+        /* If the number of points remaining is less than the maximum leaf size, 
+        then assign the remaining points to the leaves. */
 
-        node.left = BuildNode(points.GetRange(0, medianIdx), depth + 1);
-        node.right = BuildNode(points.GetRange(medianIdx, points.Count - medianIdx), depth + 1);
+        if(points.Count <= leafsize){
+
+            node.leaves.AddRange(points.GetRange(0, medianIdx));
+            node.leaves.AddRange(points.GetRange(medianIdx + 1, points.Count - medianIdx));
+
+        } else {
+
+            node.left = BuildNode(points.GetRange(0, medianIdx), depth + 1, leafsize);
+            node.right = BuildNode(points.GetRange(medianIdx + 1, points.Count - medianIdx), depth + 1, leafsize);
+
+        }
+
 
         return node;
 
     }
 
 
-    // Search
+    /* FindNode - Finds an existing node in a KDTree. 
+        Note this is basically the same as SearchNN, 
+        only without the equality of references check. */
 
-    private List<int> Search(Point query, double radius){
+    public void Find(in Point query, double? threshold, out Point found){
 
-        List<int> result = new List<int>();
+        if( root is null ){
+            throw new ArgumentException("KDTree root node is null!");
+        }
 
-        SearchNode(root, query, Math.Pow(radius, 2), result);
+        if( threshold is null){
+            threshold = DefaultThreshold;
+        }
+
+
+        double bestdist2 = Double.MaxValue;
+        Point result = new Point(0.0, 0.0);
+
+
+        FindNode(root, in query, ref bestdist2, ref result);
+
+
+        double proximity2 = query.Distance2(result);
+
+        if(proximity2 > Math.Pow((double) threshold, 2.0)){
+
+            throw new ArgumentException(String.Format("Query point (0, 1) is not in KDTree", query.GetX(), query.GetY()));
+
+        }
+
+        found = result;
         
-        return result;
+        return;
 
     }
 
 
-    // SearchNode
 
-    private void SearchNode(KDNode node, Point query, double radius, List<int> result){
-
-        if(node == null){
-            return;
-        }
+    private void FindNode(KDNode node, in Point query, ref double bestdist2, ref Point result){
 
         double distance2 = node.point.Distance2(query);
 
-        if(distance2 <= Math.Pow(radius, 2)){
+        if(distance2 < bestdist2){
 
-            result.Add(node.index);
+            bestdist2 = distance2;
+            result = node.point;
 
         }
+        
+        
+        if(node.IsLeafNode()){
+
+            for(int i = 0; i < node.leaves.Count; i++){
+
+                double leafdist2 = node.point.Distance2(node.leaves[i]);
+
+                if(leafdist2 <= bestdist2){
+
+                    result = node.leaves[i];
+
+                }
+
+            }
+
+        } else {
+
+            int dimension = node.GetDimension();
+            bool goleft = node.point[dimension] >= query[dimension];
+            double linedist2 = Math.Pow(node.point[dimension] - query[dimension], 2.0);
+
+            if(linedist2 <= bestdist2){
+
+                if(goleft && node.left != null){
+
+                    FindNode(node.left, in query, ref bestdist2, ref result);
+
+                } else if (node.right != null){
+
+                    FindNode(node.right, in query, ref bestdist2, ref result);
+
+                }
 
 
-        int dimension = node.GetDimension();
-        double linedist = node.point[dimension] - query[dimension];
-
-        if(linedist <= radius && node.left != null){
-
-            SearchNode(node.left, query, radius, result);
-
-        } else if (linedist <= -radius && node.right != null){
-
-            SearchNode(node.right, query, radius, result);
+            }
 
         }
 
@@ -102,6 +160,81 @@ public class KDTree {
     }
 
 
+
+    public void SearchNN(in Point query, out Point result){
+
+        if( root is null ){
+            throw new ArgumentException("KDTree root node is null!");
+        }
+
+        double bestdist2 = Double.MaxValue;
+        result = new Point(0.0, 0.0);
+
+        SearchNNNode(root, in query, ref bestdist2, ref result);
+
+        return;
+
+    }
+
+
+    private void SearchNNNode(KDNode node, in Point query, ref double bestdist2, ref Point result){
+        
+
+        double distance2 = node.point.Distance2(query);
+
+        if(Object.ReferenceEquals(query, node.point) && (distance2 < bestdist2)){
+
+            bestdist2 = distance2;
+            result = node.point;
+
+        }
+        
+        
+        if(node.IsLeafNode()){
+
+            for(int i = 0; i < node.leaves.Count; i++){
+
+                if(Object.ReferenceEquals(query, node.leaves[i])){
+                    continue;
+                }
+
+                double leafdist2 = node.point.Distance2(node.leaves[i]);
+
+                if(leafdist2 <= bestdist2){
+
+                    result = node.leaves[i];
+
+                }
+
+            }
+
+        } else {
+
+            int dimension = node.GetDimension();
+            bool goleft = node.point[dimension] >= query[dimension];
+            double linedist2 = Math.Pow(node.point[dimension] - query[dimension], 2.0);
+
+            if(linedist2 <= bestdist2){
+
+                if(goleft && node.left != null){
+
+                    SearchNNNode(node.left, in query, ref bestdist2, ref result);
+
+                } else if (node.right != null){
+
+                    SearchNNNode(node.right, in query, ref bestdist2, ref result);
+
+                }
+
+
+            }
+
+        }
+
+
+        return;
+
+    }
 
 
     // Class for comparing points
@@ -114,7 +247,13 @@ public class KDTree {
             this.dimension = dimension;
         }
 
-        public int Compare(Point point1, Point point2){
+        public int Compare(Point? point1, Point? point2){
+
+            if ((point1 is null) || (point2 is null)){
+
+                throw new ArgumentException("Points cannot be null!");
+
+            }
 
             return point1[dimension].CompareTo(point2[dimension]);
 
@@ -127,11 +266,11 @@ public class KDTree {
 
     private class KDNode {
 
-        public int index;
         public Point point;
         public int depth;
-        public KDNode left;
-        public KDNode right;
+        public KDNode? left;
+        public KDNode? right;
+        public List<Point> leaves;
         public PointComparer comp;
 
         public KDNode(Point point, int depth){
@@ -139,6 +278,7 @@ public class KDTree {
             this.point = point;
             this.depth = depth;
             this.comp = new PointComparer(depth % 2);
+            this.leaves = new List<Point>();
 
         }
 
@@ -154,14 +294,11 @@ public class KDTree {
 
         }
 
-    }
+        public bool IsLeafNode(){
 
+            return leaves != null;
 
-    // Indexer
-
-    public int this[int i]{
-
-        
+        }
 
     }
 

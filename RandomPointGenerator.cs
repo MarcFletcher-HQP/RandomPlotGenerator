@@ -10,16 +10,13 @@ public class RandomPointGenerator {
     private readonly Random rand;
 
 
-    public RandomPointGenerator() {
+    public RandomPointGenerator(int? seed) {
 
-        rand = new Random()
-
-    }
-
-
-    public RandomPointGenerator(int seed) {
-
-        rand = new Random(seed);
+        if (seed is not null){
+            rand = new Random((int) seed);
+        } else {
+            rand = new Random();
+        }
 
     }
 
@@ -29,7 +26,7 @@ public class RandomPointGenerator {
         double x = rand.NextDouble() * (xmax - xmin) + xmin;
         double y = rand.NextDouble() * (xmax - xmin) + xmin;
 
-        return Point(x, y);
+        return new Point(x, y);
 
     }
 
@@ -49,7 +46,7 @@ public class RandomPointGenerator {
 
             for( int j = 0; j < m; j++ ){
 
-                grid.Add(Point(xmin + i * dx, ymin + j * dy));
+                grid.Add(new Point(xmin + i * dx, ymin + j * dy));
 
             }
 
