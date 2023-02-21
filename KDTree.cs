@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace RandomPlotGenerator;
 
 
+
 public class KDTree {
 
     private KDNode? root;
@@ -161,7 +162,7 @@ public class KDTree {
 
 
 
-    public void SearchNN(in Point query, out Point result){
+    public void SearchNN(in Point query, bool onlyundefined, out Point result){
 
         if( root is null ){
             throw new ArgumentException("KDTree root node is null!");
@@ -170,19 +171,21 @@ public class KDTree {
         double bestdist2 = Double.MaxValue;
         result = new Point(0.0, 0.0);
 
-        SearchNNNode(root, in query, ref bestdist2, ref result);
+        SearchNNNode(root, in query, onlyundefined, ref bestdist2, ref result);
 
         return;
 
     }
 
 
-    private void SearchNNNode(KDNode node, in Point query, ref double bestdist2, ref Point result){
+    private void SearchNNNode(KDNode node, in Point query, bool onlyundefined, ref double bestdist2, ref Point result){
         
 
         double distance2 = node.point.Distance2(query);
 
-        if(Object.ReferenceEquals(query, node.point) && (distance2 < bestdist2)){
+        if(!Object.ReferenceEquals(query, node.point) && 
+            (!onlyundefined || node.point.IsUndefined()) && 
+            (distance2 < bestdist2)){   // What to do about ties?
 
             bestdist2 = distance2;
             result = node.point;
@@ -194,13 +197,14 @@ public class KDTree {
 
             for(int i = 0; i < node.leaves.Count; i++){
 
-                if(Object.ReferenceEquals(query, node.leaves[i])){
+                if(Object.ReferenceEquals(query, node.leaves[i]) || 
+                    (onlyundefined && !node.leaves[i].IsUndefined())){
                     continue;
                 }
 
                 double leafdist2 = node.point.Distance2(node.leaves[i]);
 
-                if(leafdist2 <= bestdist2){
+                if(leafdist2 <= bestdist2){     // What to do about ties?
 
                     result = node.leaves[i];
 
@@ -218,11 +222,11 @@ public class KDTree {
 
                 if(goleft && node.left != null){
 
-                    SearchNNNode(node.left, in query, ref bestdist2, ref result);
+                    SearchNNNode(node.left, in query, onlyundefined, ref bestdist2, ref result);
 
                 } else if (node.right != null){
 
-                    SearchNNNode(node.right, in query, ref bestdist2, ref result);
+                    SearchNNNode(node.right, in query, onlyundefined, ref bestdist2, ref result);
 
                 }
 

@@ -9,9 +9,10 @@ namespace RandomPlotGenerator;
 public class LocalPivotalMethod {
 
     private readonly Random rand;
+    private double SelectionCutoff;
 
 
-    public LocalPivotalMethod(int? seed){
+    public LocalPivotalMethod(int? seed, double? cutoff){
 
         if (seed is not null){
             rand = new Random((int) seed);
@@ -19,6 +20,75 @@ public class LocalPivotalMethod {
             rand = new Random();
         }
 
+        if(cutoff is null){
+            SelectionCutoff = 0.95;
+        } else {
+            SelectionCutoff = (double) cutoff;
+        }
+
+    }
+
+
+
+    public void UpdateProbability(ref Point point1, ref Point point2){
+
+        if(point1.IsSelected() && point2.IsSelected()){
+            
+            return;
+
+        }
+
+
+        /* Flip a weighted coin and, based on the outcome, update the selection probabilities.
+        The current probability assigned to a point determines the weighting applied. 
+        Points containing more probability are given more weighting. 
+        
+        After each update, check whether a point can be selected, or excluded.
+        */
+
+        double totalprob = point1.prob + point2.prob;
+
+        if (totalprob < 1.0){
+
+            double cutoff = point1.prob / totalprob;
+            double weightedcoin = rand.NextDouble();
+
+            point1.prob = totalprob * Convert.ToDouble(weightedcoin <= cutoff);     // Just imagine all the nanoseconds saved by eliminating one 'if' statement!
+            point2.prob = totalprob - point1.prob;
+
+        } else {
+
+            double cutoff = (1 - point1.prob) / (2 - totalprob);
+            double weightedcoin = rand.NextDouble();
+
+            point1.prob = (totalprob - 1) * Convert.ToDouble(weightedcoin <= cutoff) + 1 * Convert.ToDouble(weightedcoin > cutoff);
+            point2.prob = totalprob - point1.prob;
+
+        }
+
+        if(point1.prob >= SelectionCutoff){
+
+            point1.Select();
+
+        } else if (point1.prob <= (1 - SelectionCutoff)){
+
+            point1.Exclude();
+
+        }
+
+
+        if(point2.prob >= SelectionCutoff){
+
+            point2.Select();
+
+        } else if (point2.prob <= (1 - SelectionCutoff)){
+
+            point2.Exclude();
+
+        }
+
+
+        return;
 
     }
 
@@ -65,9 +135,19 @@ public class LocalPivotalMethod {
 
             int index = rand.Next();
 
-            Point point;
+            Point point, neighbour;
 
-            tree.SearchNN(candidates[index], out point);
+            tree.Find(candidates[index], null, out point);
+
+            tree.SearchNN(point, true, out neighbour);
+
+
+            // Update the selection probability for each point
+
+            UpdateProbability(ref point, ref neighbour);
+
+
+            // Where/when do you add a new selection to the sample list?
 
             
 

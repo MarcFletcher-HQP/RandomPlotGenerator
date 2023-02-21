@@ -34,7 +34,7 @@ public class Point {
     public void SetInitialProb(double prob){
         
         if(prob < 0.0 || prob > 1.0){
-            throw new ArgumentException("Probability can not be less than 0.0 or greater than 1.0.")
+            throw new ArgumentException("Probability can not be less than 0.0 or greater than 1.0.");
         }
         
         this.prob = prob;
@@ -83,11 +83,13 @@ public class Point {
 
 
     public void Select(){
+        prob = 1.0;
         status = PointStatus.Selected;
     }
 
 
     public void Exclude(){
+        prob = 0.0;
         status = PointStatus.Excluded;
     }
 
