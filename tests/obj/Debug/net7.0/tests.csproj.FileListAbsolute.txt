@@ -1,0 +1,16 @@
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\tests.exe
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\tests.deps.json
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\tests.runtimeconfig.json
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\tests.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\tests.pdb
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\RandomPlotGenerator.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\RandomPlotGenerator.pdb
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.csproj.AssemblyReference.cache
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.csproj.CoreCompileInputs.cache
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.csproj.CopyComplete
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\refint\tests.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.pdb
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.genruntimeconfig.cache
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\ref\tests.dll

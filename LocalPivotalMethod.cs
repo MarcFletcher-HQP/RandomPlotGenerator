@@ -36,7 +36,19 @@ public class LocalPivotalMethod {
             
             return;
 
+        } else if (point1.IsSelected()){
+
+            point2.Exclude();
+            return;
+
+        } else if (point2.IsSelected()){
+
+            point1.Exclude();
+            return;
+
         }
+
+
 
 
         /* Flip a weighted coin and, based on the outcome, update the selection probabilities.
@@ -99,6 +111,7 @@ public class LocalPivotalMethod {
 
         List<Point> sample = new List<Point>();
 
+
         if (size == 0){
             return sample;
         }
@@ -133,7 +146,7 @@ public class LocalPivotalMethod {
 
             // Randomly pick a point, find it in the tree and find the nearest neighbour to that point.
 
-            int index = rand.Next();
+            int index = rand.Next(0, candidates.Count - 1);
 
             Point point, neighbour;
 
@@ -147,23 +160,31 @@ public class LocalPivotalMethod {
             UpdateProbability(ref point, ref neighbour);
 
 
-            // Where/when do you add a new selection to the sample list?
 
-            
+            // If a selection was made, then add it to the list
 
+            if(point.IsSelected() && !sample.Contains(point)){
 
+                sample.Add(point);
+
+            }
+
+            if(neighbour.IsSelected() && !sample.Contains(neighbour)){
+
+                sample.Add(neighbour);
+
+            }
 
         }
 
 
-
-
-
-
-
+        return sample;
 
     }
 
 
 
 }
+
+
+

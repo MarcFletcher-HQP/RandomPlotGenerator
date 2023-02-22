@@ -1,0 +1,10 @@
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.deps.json
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.pdb
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.csproj.AssemblyReference.cache
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.csproj.CoreCompileInputs.cache
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\refint\RandomPlotGenerator.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.pdb
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\ref\RandomPlotGenerator.dll

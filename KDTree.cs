@@ -53,12 +53,12 @@ public class KDTree {
         if(points.Count <= leafsize){
 
             node.leaves.AddRange(points.GetRange(0, medianIdx));
-            node.leaves.AddRange(points.GetRange(medianIdx + 1, points.Count - medianIdx));
+            node.leaves.AddRange(points.GetRange(medianIdx + 1, points.Count - medianIdx - 1));
 
         } else {
 
             node.left = BuildNode(points.GetRange(0, medianIdx), depth + 1, leafsize);
-            node.right = BuildNode(points.GetRange(medianIdx + 1, points.Count - medianIdx), depth + 1, leafsize);
+            node.right = BuildNode(points.GetRange(medianIdx + 1, points.Count - medianIdx - 1), depth + 1, leafsize);
 
         }
 
@@ -84,7 +84,7 @@ public class KDTree {
 
 
         double bestdist2 = Double.MaxValue;
-        Point result = new Point(0.0, 0.0);
+        Point result = query;
 
 
         FindNode(root, in query, ref bestdist2, ref result);
@@ -94,7 +94,7 @@ public class KDTree {
 
         if(proximity2 > Math.Pow((double) threshold, 2.0)){
 
-            throw new ArgumentException(String.Format("Query point (0, 1) is not in KDTree", query.GetX(), query.GetY()));
+            throw new ArgumentException(String.Format("Query point ({0}, {1}) is not in KDTree", query.GetX(), query.GetY()));
 
         }
 
