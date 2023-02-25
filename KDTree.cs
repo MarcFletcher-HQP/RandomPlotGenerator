@@ -1,9 +1,14 @@
 
+#define DEBUG
+#undef DEBUG
+
+
 using System;
 using System.Collections.Generic;
 
 
 namespace RandomPlotGenerator;
+
 
 
 
@@ -87,6 +92,13 @@ public class KDTree {
         Point result = query;
 
 
+        #if DEBUG
+
+        Console.WriteLine(String.Format("Find: Searching for {0} in KD-Tree. Initial bestdist2 = {1}", query.Print(), bestdist2));
+
+        #endif
+
+
         FindNode(root, in query, ref bestdist2, ref result);
 
 
@@ -94,7 +106,7 @@ public class KDTree {
 
         if(proximity2 > Math.Pow((double) threshold, 2.0)){
 
-            throw new ArgumentException(String.Format("Query point ({0}, {1}) is not in KDTree", query.GetX(), query.GetY()));
+            throw new ArgumentException(String.Format("Query point ({0}, {1}) is not in KDTree. \nNearest point was ({2}, {3})", query.GetX(), query.GetY(), result.GetX(), result.GetY()));
 
         }
 
@@ -116,21 +128,53 @@ public class KDTree {
             result = node.point;
 
         }
+
+        if(distance2 == 0){
+            return;
+        }
+
+
+        #if DEBUG
+
+        Console.WriteLine(
+            String.Format("FindNode: node: {0}:  distance2: {1}  IsLeafNode: {2}  result: {3}  bestdist2: {4}", 
+                            node.point.Print(), distance2, node.IsLeafNode(), result.Print(), bestdist2)
+        );
+
+        #endif
         
         
         if(node.IsLeafNode()){
 
             for(int i = 0; i < node.leaves.Count; i++){
 
-                double leafdist2 = node.point.Distance2(node.leaves[i]);
+                double leafdist2 = query.Distance2(node.leaves[i]);
+
+                #if DEBUG
+                    Console.WriteLine(String.Format("FindNode: Searching leaf: {0}  leafdist2: {1}", node.leaves[i].Print(), leafdist2));
+                #endif
 
                 if(leafdist2 <= bestdist2){
 
                     result = node.leaves[i];
+                    bestdist2 = leafdist2;
+
+                    if(leafdist2 == 0){
+                        return;
+                    }
 
                 }
 
             }
+
+            #if DEBUG
+
+            Console.WriteLine(
+                String.Format("FindNode: Finished searching leaves:  result: {0}  bestdist2: {1}", 
+                                result.Print(), bestdist2)
+            );
+
+            #endif
 
         } else {
 
@@ -138,18 +182,31 @@ public class KDTree {
             bool goleft = node.point[dimension] >= query[dimension];
             double linedist2 = Math.Pow(node.point[dimension] - query[dimension], 2.0);
 
-            if(linedist2 <= bestdist2){
+            if(linedist2 == 0){     // point is on the split-line, so check the next dimension
 
-                if(goleft && node.left != null){
+                dimension = (dimension + 1) % 2;
 
-                    FindNode(node.left, in query, ref bestdist2, ref result);
+                goleft = node.point[dimension] >= query[dimension];
 
-                } else if (node.right != null){
+            }
 
-                    FindNode(node.right, in query, ref bestdist2, ref result);
+            #if DEBUG
 
-                }
+            Console.WriteLine(
+                String.Format("FindNode: Searching next node:  dimension: {0}  goleft: {1}  linedist2: {2}", 
+                                dimension, goleft, linedist2)
+            );
 
+            #endif
+
+
+            if(goleft && node.left != null){
+
+                FindNode(node.left, in query, ref bestdist2, ref result);
+
+            } else if (node.right != null){
+
+                FindNode(node.right, in query, ref bestdist2, ref result);
 
             }
 
@@ -207,6 +264,7 @@ public class KDTree {
                 if(leafdist2 <= bestdist2){     // What to do about ties?
 
                     result = node.leaves[i];
+                    bestdist2 = leafdist2;
 
                 }
 
@@ -217,6 +275,14 @@ public class KDTree {
             int dimension = node.GetDimension();
             bool goleft = node.point[dimension] >= query[dimension];
             double linedist2 = Math.Pow(node.point[dimension] - query[dimension], 2.0);
+
+            if(linedist2 == 0){     // point is on the split-line, so check the next dimension
+
+                dimension = (dimension + 1) % 2;
+
+                goleft = node.point[dimension] >= query[dimension];
+
+            }
 
             if(linedist2 <= bestdist2){
 
@@ -300,7 +366,7 @@ public class KDTree {
 
         public bool IsLeafNode(){
 
-            return leaves != null;
+            return leaves.Count > 0;
 
         }
 

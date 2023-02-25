@@ -51,6 +51,20 @@ public class Point {
     }
 
 
+    public void SetX(double x){
+
+        this.coords[0] = x;
+
+    }
+
+
+    public void SetY(double y){
+
+        this.coords[1] = y;
+
+    }
+
+
     public bool IsSelected(){
         return status == PointStatus.Selected;
     }
@@ -92,6 +106,14 @@ public class Point {
         prob = 0.0;
         status = PointStatus.Excluded;
     }
+
+
+    public string Print(){
+
+        return String.Format("POINT({0} {1})", this.GetX(), this.GetY());
+
+    }
+
 
 }
 

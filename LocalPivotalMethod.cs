@@ -1,5 +1,7 @@
 
 
+#define DEBUG
+
 using System;
 using System.Collections.Generic;
 
@@ -32,7 +34,7 @@ public class LocalPivotalMethod {
 
     public void UpdateProbability(ref Point point1, ref Point point2){
 
-        if(point1.IsSelected() && point2.IsSelected()){
+        /* if(point1.IsSelected() || point2.IsSelected()){
             
             return;
 
@@ -46,7 +48,7 @@ public class LocalPivotalMethod {
             point1.Exclude();
             return;
 
-        }
+        } */
 
 
 
@@ -152,7 +154,13 @@ public class LocalPivotalMethod {
 
             tree.Find(candidates[index], null, out point);
 
+            if(point.IsExcluded() || point.IsSelected()){
+                continue;
+            }
+
+
             tree.SearchNN(point, true, out neighbour);
+
 
 
             // Update the selection probability for each point
@@ -174,6 +182,13 @@ public class LocalPivotalMethod {
                 sample.Add(neighbour);
 
             }
+
+
+            #if DEBUG
+
+            Console.WriteLine(String.Format("Sample currently contains {0} points.", sample.Count));
+
+            #endif
 
         }
 
