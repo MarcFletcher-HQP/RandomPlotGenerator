@@ -242,10 +242,19 @@ public class KDTree {
 
         if(!Object.ReferenceEquals(query, node.point) && 
             (!onlyundefined || node.point.IsUndefined()) && 
-            (distance2 < bestdist2)){   // What to do about ties?
+            (distance2 <= bestdist2)){
 
-            bestdist2 = distance2;
-            result = node.point;
+                if(distance2 < bestdist2){
+
+                    bestdist2 = distance2;
+                    result = node.point;
+
+                } else if ((distance2 == bestdist2) && BreakTie()){
+
+                    bestdist2 = distance2;
+                    result = node.point;
+
+                }
 
         }
         
@@ -261,10 +270,15 @@ public class KDTree {
 
                 double leafdist2 = node.point.Distance2(node.leaves[i]);
 
-                if(leafdist2 <= bestdist2){     // What to do about ties?
+                if(leafdist2 < bestdist2){
 
-                    result = node.leaves[i];
                     bestdist2 = leafdist2;
+                    result = node.leaves[i];
+
+                } else if ((leafdist2 == bestdist2) && BreakTie()){
+
+                    bestdist2 = leafdist2;
+                    result = node.leaves[i];
 
                 }
 
@@ -307,6 +321,29 @@ public class KDTree {
     }
 
 
+    public bool BreakTie(){
+
+        Random rand = new Random();
+
+        return rand.NextDouble() > 0.5;
+
+    }
+
+
+    public string Print(){
+
+        string leftprnt = "";
+        string rightprnt = "";
+
+        root.left.Print(ref leftprnt);
+        root.right.Print(ref rightprnt);
+
+        return leftprnt + rightprnt;
+
+    }
+
+
+
     // Class for comparing points
 
     private class PointComparer : IComparer<Point> {
@@ -343,6 +380,7 @@ public class KDTree {
         public List<Point> leaves;
         public PointComparer comp;
 
+
         public KDNode(Point point, int depth){
 
             this.point = point;
@@ -351,6 +389,30 @@ public class KDTree {
             this.leaves = new List<Point>();
 
         }
+
+
+        public void Print(ref string buff){
+
+            buff += String.Format("{0}: {1}  {2}\n", point.Print(), point.prob, point.status);
+
+            if(IsLeafNode()){
+                for(int i = 0; i < leaves.Count; i++){
+                    buff += String.Format("{0}: {1}  {2}\n", leaves[i].Print(), leaves[i].prob, leaves[i].status);
+                }
+            }
+
+            if(left is not null){
+                left.Print(ref buff);
+            }
+
+            if(right is not null){
+                right.Print(ref buff);
+            }
+
+            return;
+
+        }
+
 
         public int Compare(Point query){
 
@@ -363,6 +425,7 @@ public class KDTree {
             return comp.dimension;
 
         }
+
 
         public bool IsLeafNode(){
 

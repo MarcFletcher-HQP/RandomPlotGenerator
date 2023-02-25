@@ -80,22 +80,22 @@ public class LocalPivotalMethod {
 
         }
 
-        if(point1.prob >= SelectionCutoff){
+        if(point1.prob == 1.0){
 
             point1.Select();
 
-        } else if (point1.prob <= (1 - SelectionCutoff)){
+        } else if (point1.prob == 0.0){
 
             point1.Exclude();
 
         }
 
 
-        if(point2.prob >= SelectionCutoff){
+        if(point2.prob == 1.0){
 
             point2.Select();
 
-        } else if (point2.prob <= (1 - SelectionCutoff)){
+        } else if (point2.prob == 0.0){
 
             point2.Exclude();
 
@@ -143,6 +143,10 @@ public class LocalPivotalMethod {
         tree.Build(candidates, null);
 
 
+        #if DEBUG
+            int iter = 0;
+        #endif
+
 
         while(sample.Count < size){
 
@@ -153,11 +157,6 @@ public class LocalPivotalMethod {
             Point point, neighbour;
 
             tree.Find(candidates[index], null, out point);
-
-            if(point.IsExcluded() || point.IsSelected()){
-                continue;
-            }
-
 
             tree.SearchNN(point, true, out neighbour);
 
@@ -186,12 +185,35 @@ public class LocalPivotalMethod {
 
             #if DEBUG
 
-            Console.WriteLine(String.Format("Sample currently contains {0} points.", sample.Count));
+            ++iter;
+
+            if((iter % 10) == 0){
+
+                Console.WriteLine(String.Format("Grid State at iteration {0}", iter));
+
+                Console.WriteLine(String.Format("{0}", tree.Print()));
+
+
+            }
+
+            if((iter % 50) == 0){
+                break;
+            }
 
             #endif
 
         }
 
+
+        #if DEBUG
+
+            for(int i = 0; i < sample.Count; i++ ){
+                
+                Console.WriteLine(String.Format("Sample {0}: {1}", i, sample[i].Print()));
+
+            }
+
+        #endif
 
         return sample;
 

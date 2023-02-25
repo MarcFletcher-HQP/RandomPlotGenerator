@@ -8,3 +8,13 @@ C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotG
 C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\refint\RandomPlotGenerator.dll
 C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.pdb
 C:\Users\activ\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\ref\RandomPlotGenerator.dll
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.deps.json
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.dll
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\bin\Debug\net7.0\RandomPlotGenerator.pdb
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.csproj.AssemblyReference.cache
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.csproj.CoreCompileInputs.cache
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.dll
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\refint\RandomPlotGenerator.dll
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\RandomPlotGenerator.pdb
+C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\obj\Debug\net7.0\ref\RandomPlotGenerator.dll
