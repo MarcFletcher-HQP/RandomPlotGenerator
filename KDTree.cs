@@ -16,7 +16,7 @@ public class KDTree {
 
     private KDNode? root;
     private int Count;
-    private readonly int DefaultLeafSize = 5;
+    private readonly int DefaultLeafSize = 10;
     private readonly double DefaultThreshold = 0.1;
 
 
@@ -92,13 +92,6 @@ public class KDTree {
         Point result = query;
 
 
-        #if DEBUG
-
-        Console.WriteLine(String.Format("Find: Searching for {0} in KD-Tree. Initial bestdist2 = {1}", query.Print(), bestdist2));
-
-        #endif
-
-
         FindNode(root, in query, ref bestdist2, ref result);
 
 
@@ -106,7 +99,10 @@ public class KDTree {
 
         if(proximity2 > Math.Pow((double) threshold, 2.0)){
 
-            throw new ArgumentException(String.Format("Query point ({0}, {1}) is not in KDTree. \nNearest point was ({2}, {3})", query.GetX(), query.GetY(), result.GetX(), result.GetY()));
+            throw new ArgumentException(
+                String.Format("Query point ({0}, {1}) is not in KDTree. \nNearest point was ({2}, {3})", 
+                    query.GetX(), query.GetY(), result.GetX(), result.GetY())
+            );
 
         }
 
@@ -132,16 +128,6 @@ public class KDTree {
         if(distance2 == 0){
             return;
         }
-
-
-        #if DEBUG
-
-        Console.WriteLine(
-            String.Format("FindNode: node: {0}:  distance2: {1}  IsLeafNode: {2}  result: {3}  bestdist2: {4}", 
-                            node.point.Print(), distance2, node.IsLeafNode(), result.Print(), bestdist2)
-        );
-
-        #endif
         
         
         if(node.IsLeafNode()){
@@ -149,10 +135,6 @@ public class KDTree {
             for(int i = 0; i < node.leaves.Count; i++){
 
                 double leafdist2 = query.Distance2(node.leaves[i]);
-
-                #if DEBUG
-                    Console.WriteLine(String.Format("FindNode: Searching leaf: {0}  leafdist2: {1}", node.leaves[i].Print(), leafdist2));
-                #endif
 
                 if(leafdist2 <= bestdist2){
 
@@ -167,15 +149,6 @@ public class KDTree {
 
             }
 
-            #if DEBUG
-
-            Console.WriteLine(
-                String.Format("FindNode: Finished searching leaves:  result: {0}  bestdist2: {1}", 
-                                result.Print(), bestdist2)
-            );
-
-            #endif
-
         } else {
 
             int dimension = node.GetDimension();
@@ -189,15 +162,6 @@ public class KDTree {
                 goleft = node.point[dimension] >= query[dimension];
 
             }
-
-            #if DEBUG
-
-            Console.WriteLine(
-                String.Format("FindNode: Searching next node:  dimension: {0}  goleft: {1}  linedist2: {2}", 
-                                dimension, goleft, linedist2)
-            );
-
-            #endif
 
 
             if(goleft && node.left != null){
@@ -325,24 +289,19 @@ public class KDTree {
     }
 
 
-    public string Print(){
+    public string Print(bool? nodesonly){
 
-        string leftprnt = "";
-        string rightprnt = "";
-
-        if (root is not null && root.left is not null){
-
-            root.left.Print(ref leftprnt);
-
+        if(nodesonly is null){
+            nodesonly = false;
         }
 
-        if(root is not null && root.right is not null){
+        string rootprnt = "";
 
-            root.right.Print(ref rightprnt);
-
+        if(root is not null){
+            root.Print(ref rootprnt, (bool) nodesonly);
         }
 
-        return leftprnt + rightprnt;
+        return rootprnt;
 
     }
 
@@ -366,7 +325,17 @@ public class KDTree {
 
             }
 
-            return point1[dimension].CompareTo(point2[dimension]);
+            int order = point1[dimension].CompareTo(point2[dimension]);
+
+            if(order == 0){
+
+                int newdim = (dimension + 1) % 2;
+
+                order = point1[newdim].CompareTo(point2[newdim]);
+
+            }
+
+            return order;
 
         }
 
@@ -395,22 +364,22 @@ public class KDTree {
         }
 
 
-        public void Print(ref string buff){
+        public void Print(ref string buff, bool nodesonly){
 
-            buff += String.Format("{0}: {1}  {2}\n", point.Print(), point.prob, point.status);
+            buff += String.Format("Depth: {0}  Dimension: {1}  {2}: {3}  {4}\n", depth, GetDimension(), point.Print(), point.prob, point.status);
 
-            if(IsLeafNode()){
+            if(IsLeafNode() && !nodesonly){
                 for(int i = 0; i < leaves.Count; i++){
-                    buff += String.Format("{0}: {1}  {2}\n", leaves[i].Print(), leaves[i].prob, leaves[i].status);
+                    buff += String.Format("Depth: {0}  {1}: {2}  {3}\n", depth, leaves[i].Print(), leaves[i].prob, leaves[i].status);
                 }
             }
 
             if(left is not null){
-                left.Print(ref buff);
+                left.Print(ref buff, nodesonly);
             }
 
             if(right is not null){
-                right.Print(ref buff);
+                right.Print(ref buff, nodesonly);
             }
 
             return;
@@ -438,6 +407,5 @@ public class KDTree {
         }
 
     }
-
 
 }

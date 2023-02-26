@@ -8,19 +8,23 @@
     "net7.0": []
   },
   "packageFolders": {
-    "C:\\Users\\court\\.nuget\\packages\\": {}
+    "C:\\Users\\activ\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\court\\OneDrive\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+      "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
       "projectName": "RandomPlotGenerator",
-      "projectPath": "C:\\Users\\court\\OneDrive\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
-      "packagesPath": "C:\\Users\\court\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\court\\OneDrive\\Documents\\GitHub\\RandomPlotGenerator\\obj\\",
+      "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+      "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
-        "C:\\Users\\court\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\activ\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
@@ -59,7 +63,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
       }
     }
   }
