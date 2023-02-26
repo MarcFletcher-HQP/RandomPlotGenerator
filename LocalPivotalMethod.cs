@@ -1,6 +1,7 @@
 
 
 #define DEBUG
+//#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,12 @@ public class LocalPivotalMethod {
         } */
 
 
+/*         #if DEBUG
+
+        Console.WriteLine(String.Format("UpdateProbability:  {0}: {1}  {2}: {3}", point1.Print(), point1.prob, point2.Print(), point2.prob));
+
+        #endif */
+
 
 
         /* Flip a weighted coin and, based on the outcome, update the selection probabilities.
@@ -79,6 +86,15 @@ public class LocalPivotalMethod {
             point2.prob = totalprob - point1.prob;
 
         }
+
+
+/*         #if DEBUG
+
+        Console.WriteLine(String.Format("UpdateProbability:  {0}: {1}  {2}: {3}", point1.Print(), point1.prob, point2.Print(), point2.prob));
+
+        #endif */
+
+
 
         if(point1.prob == 1.0){
 
@@ -143,9 +159,19 @@ public class LocalPivotalMethod {
         tree.Build(candidates, null);
 
 
-        #if DEBUG
+
+        // Index of selected points
+
+/*         List<int> selectedIdx = new List<int>(candidates.Count);
+
+        for(int i = 0; i < selectedIdx.Count; i++){
+            selectedIdx[i] = 0;
+        } */
+
+
+/*         #if DEBUG
             int iter = 0;
-        #endif
+        #endif */
 
 
         while(sample.Count < size){
@@ -166,28 +192,45 @@ public class LocalPivotalMethod {
 
             UpdateProbability(ref point, ref neighbour);
 
+/*             #if DEBUG
+
+            Console.WriteLine(String.Format("SamplePoints:  {0}: {1}  {2}: {3}", point.Print(), point.prob, neighbour.Print(), neighbour.prob));
+
+            #endif */
+
 
 
             // If a selection was made, then add it to the list
+
+            /* selectedIdx[index] = point.IsSelected() ? 1 : 0; */
 
             if(point.IsSelected() && !sample.Contains(point)){
 
                 sample.Add(point);
 
+            } else if (point.IsExcluded() && sample.Contains(point)){
+
+                sample.Remove(point);
+
             }
+
 
             if(neighbour.IsSelected() && !sample.Contains(neighbour)){
 
                 sample.Add(neighbour);
 
+            } else if (neighbour.IsExcluded() && sample.Contains(neighbour)){
+
+                sample.Remove(neighbour);
+
             }
 
 
-            #if DEBUG
+/*             #if DEBUG
 
             ++iter;
 
-            if((iter % 10) == 0){
+            if((iter % 5) == 0){
 
                 Console.WriteLine(String.Format("Grid State at iteration {0}", iter));
 
@@ -196,24 +239,28 @@ public class LocalPivotalMethod {
 
             }
 
-            if((iter % 50) == 0){
+            if((iter % 5) == 0){
                 break;
             }
+
+            #endif */
+
+            #if DEBUG
+
+            PrintMultiPoint(sample);
+
+            /* for(int i = 0; i < sample.Count; i++ ){
+                
+                Console.WriteLine(String.Format("Sample {0}: {1}", i, sample[i].Print()));
+
+            } */
 
             #endif
 
         }
 
 
-        #if DEBUG
 
-            for(int i = 0; i < sample.Count; i++ ){
-                
-                Console.WriteLine(String.Format("Sample {0}: {1}", i, sample[i].Print()));
-
-            }
-
-        #endif
 
         return sample;
 

@@ -237,7 +237,6 @@ public class KDTree {
 
     private void SearchNNNode(KDNode node, in Point query, bool onlyundefined, ref double bestdist2, ref Point result){
         
-
         double distance2 = node.point.Distance2(query);
 
         if(!Object.ReferenceEquals(query, node.point) && 
@@ -268,7 +267,7 @@ public class KDTree {
                     continue;
                 }
 
-                double leafdist2 = node.point.Distance2(node.leaves[i]);
+                double leafdist2 = query.Distance2(node.leaves[i]);
 
                 if(leafdist2 < bestdist2){
 
@@ -287,24 +286,20 @@ public class KDTree {
         } else {
 
             int dimension = node.GetDimension();
-            bool goleft = node.point[dimension] >= query[dimension];
             double linedist2 = Math.Pow(node.point[dimension] - query[dimension], 2.0);
 
-            if(linedist2 == 0){     // point is on the split-line, so check the next dimension
 
-                dimension = (dimension + 1) % 2;
+            /* Unlike in FindNode, need to search both branches of the tree when the split point is in range */
 
-                goleft = node.point[dimension] >= query[dimension];
+            if(linedist2 <= bestdist2){ 
 
-            }
-
-            if(linedist2 <= bestdist2){
-
-                if(goleft && node.left != null){
+                if(node.left is not null){
 
                     SearchNNNode(node.left, in query, onlyundefined, ref bestdist2, ref result);
 
-                } else if (node.right != null){
+                } 
+                
+                if (node.right is not null){
 
                     SearchNNNode(node.right, in query, onlyundefined, ref bestdist2, ref result);
 
@@ -335,8 +330,17 @@ public class KDTree {
         string leftprnt = "";
         string rightprnt = "";
 
-        root.left.Print(ref leftprnt);
-        root.right.Print(ref rightprnt);
+        if (root is not null && root.left is not null){
+
+            root.left.Print(ref leftprnt);
+
+        }
+
+        if(root is not null && root.right is not null){
+
+            root.right.Print(ref rightprnt);
+
+        }
 
         return leftprnt + rightprnt;
 

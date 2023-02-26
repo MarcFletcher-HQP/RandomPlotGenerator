@@ -70,15 +70,16 @@ class Program {
 
         Random rand = new Random();
 
-        int index = rand.Next(0, grid.Count - 1);
+        /* int index = rand.Next(0, grid.Count - 1); */
 
-        Point point = grid[index];
+        Point point = new Point(1, 4);
 
-        Point result = point;
+        Point result = new Point(0, 0);
 
         KDTree tree = new KDTree();
         tree.Build(grid, null);
 
+        tree.Find(point, null, out point);
         tree.SearchNN(point, true, out result);
 
         Console.WriteLine(String.Format("SearchNN: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
@@ -86,6 +87,28 @@ class Program {
 
         Console.WriteLine(String.Format("SearchNN: Marking point as Excluded and trying again..."));
 
+        result.Exclude();
+
+        tree.SearchNN(point, true, out result);
+
+        Console.WriteLine(String.Format("SearchNN: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
+
+
+        result.Exclude();
+
+        tree.SearchNN(point, true, out result);
+
+        Console.WriteLine(String.Format("SearchNN: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
+
+
+        result.Exclude();
+
+        tree.SearchNN(point, true, out result);
+
+        Console.WriteLine(String.Format("SearchNN: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
+
+
+        // should have run out of nearest neighbours by here
         result.Exclude();
 
         tree.SearchNN(point, true, out result);
