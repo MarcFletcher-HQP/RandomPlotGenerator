@@ -10,7 +10,7 @@ using System;
 
 class Program {
 
-    static int Repeats = 1;
+    static int Repeats = 100;
     static int SampleSize = 5;
     static double GridWidth = 1;
     static double[] AOI = {0, 0, 9, 14};
@@ -49,7 +49,7 @@ class Program {
 
             List<Point> grid = rpg.RandomGrid(AOI[0], AOI[1], AOI[2], AOI[3], GridWidth, GridWidth);
 
-            List<Point> sample = lpm.SamplePoints(grid, SampleSize);
+            List<Point> sample = lpm.SamplePoints(grid, SampleSize, null);
 
             PrintMultiPoint(in sample);
 

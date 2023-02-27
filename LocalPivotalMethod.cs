@@ -1,7 +1,7 @@
 
 
 #define DEBUG
-//#undef DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -69,7 +69,7 @@ public class LocalPivotalMethod {
 
             point1.Select();
 
-        } else if (point1.prob <= 1 - SelectionCutoff){
+        } else if (point1.prob <= (1 - SelectionCutoff)){
 
             point1.Exclude();
 
@@ -80,7 +80,7 @@ public class LocalPivotalMethod {
 
             point2.Select();
 
-        } else if (point2.prob <= 1 - SelectionCutoff){
+        } else if (point2.prob <= (1 - SelectionCutoff)){
 
             point2.Exclude();
 
@@ -94,7 +94,7 @@ public class LocalPivotalMethod {
 
 
 
-    public List<Point> SamplePoints(List<Point> candidates, int size){
+    public List<Point> SamplePoints(List<Point> candidates, int size, int? maxiter){
 
         List<Point> sample = new List<Point>();
 
@@ -108,6 +108,11 @@ public class LocalPivotalMethod {
             sample.AddRange(candidates.GetRange(0, candidates.Count));
             return sample;
 
+        }
+
+
+        if(maxiter is null){
+            maxiter = candidates.Count * 10;
         }
 
 
@@ -140,27 +145,28 @@ public class LocalPivotalMethod {
 
 
 
-
-        #if DEBUG
-
-        int iter = 0;
-
-        #endif
-
-
-
-        while(sample.Count < size && sampleIdx.Count > 0){
+        for(int i = 0; i < maxiter; i++){
 
             // Randomly pick a point, find it in the tree and find the nearest neighbour to that point.
 
-            int idx = rand.Next(0, sampleIdx.Count - 1);
+            if(sampleIdx.Count == 0){
+                break;
+            }
+
+
+            int idx = rand.Next(0, sampleIdx.Count);        // Inclusive lower bound, exclusive upper bound [0,Count);
 
             int index = sampleIdx[idx];
 
+            Point point = candidates[index]; 
 
-            Point point, neighbour;
+            if(point.IsExcluded() || point.IsSelected()){
+                sampleIdx.RemoveAt(idx);
+                continue;
+            }
 
-            tree.Find(candidates[index], null, out point);
+
+            Point neighbour;
 
             tree.SearchNN(point, true, out neighbour);
 
@@ -171,61 +177,33 @@ public class LocalPivotalMethod {
             UpdateProbability(ref point, ref neighbour);
 
 
-
-            // If a selection was made, then add it to the list
-
-            if(point.IsSelected() && !sample.Contains(point)){
-
-                sample.Add(point);
-
-                List<Point> newcandidates = new List<Point>();
-
-                foreach(int i in sampleIdx){
-
-                    newcandidates.Add(candidates[i]);
-
-                }
-
-                tree = new KDTree();
-                tree.Build(newcandidates, null);
-
-            } else if (point.IsExcluded() && sample.Contains(point)){
-
-                sample.Remove(point);
-
-            } else if (point.IsExcluded()){
+            if (point.IsExcluded() || point.IsSelected()){
 
                 sampleIdx.RemoveAt(idx);
 
             }
 
 
-            if(neighbour.IsSelected() && !sample.Contains(neighbour)){
-
-                sample.Add(neighbour);
-
-            } else if (neighbour.IsExcluded() && sample.Contains(neighbour)){
-
-                sample.Remove(neighbour);
-
-            }
 
             #if DEBUG
 
-            iter++;
-
-            if((iter % 10000) == 0){
-
-                Console.WriteLine(String.Format("{0}", tree.Print(false)));
-
-                this.PrintMultiPoint(sample);
-
-
-            }
+            Console.WriteLine(String.Format("SamplePoints: Iteration: {0}  Remaining Points: {1}", i, sampleIdx.Count));
 
             #endif
 
         }
+
+
+        sample = candidates.FindAll((Point pt) => pt.prob > 0.5);
+
+        #if DEBUG
+
+        for(int i = 0; i < sampleIdx.Count; i++){
+            Point pt = candidates[sampleIdx[i]];
+            Console.WriteLine(String.Format("SampleIdx[{0}]: {1}  ->  {2}  prob: {3}  status: {4}", i, sampleIdx[i], pt.Print(), pt.prob, pt.status));
+        }
+
+        #endif
 
 
         return sample;

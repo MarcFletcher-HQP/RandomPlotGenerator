@@ -16,7 +16,7 @@ public class KDTree {
 
     private KDNode? root;
     private int Count;
-    private readonly int DefaultLeafSize = 10;
+    private readonly int DefaultLeafSize = 40;
     private readonly double DefaultThreshold = 0.1;
 
 

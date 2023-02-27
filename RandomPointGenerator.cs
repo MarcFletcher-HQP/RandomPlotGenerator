@@ -46,7 +46,7 @@ public class RandomPointGenerator {
 
             for( int j = 0; j < m; j++ ){
 
-                grid.Add(new Point(xmin + i * dx, ymin + j * dy));  // Change to start.GetX(), etc.
+                grid.Add(new Point(start.GetX() + i * dx, start.GetY() + j * dy)); 
 
             }
 
