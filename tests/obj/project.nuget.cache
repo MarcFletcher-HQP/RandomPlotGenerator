@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OLn03B/oFkHKdyUlPZ9fk/XdmhBxC+y0NAMMsb/27yWzah9I74dD64fcUPDRwWdv/mkdXOJilbjjpCOuEhlKQQ==",
+  "dgSpecHash": "8oOpzyYMOf14PyDwUMl4PjvFhNc8/JybfpIeTfpV729GogIYmlgytLL01SthbYri4KRbaiASzKUj5Pyf+nLP5A==",
   "success": true,
-  "projectFilePath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
+  "projectFilePath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\activ\\.nuget\\packages\\nettopologysuite\\2.5.0\\nettopologysuite.2.5.0.nupkg.sha512",
     "C:\\Users\\activ\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"

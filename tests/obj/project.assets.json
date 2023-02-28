@@ -99,11 +99,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
+      "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
       "projectName": "tests",
-      "projectPath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
+      "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\tests.csproj",
       "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\obj\\",
+      "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -121,8 +121,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj": {
-              "projectPath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj"
+            "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj": {
+              "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj"
             }
           }
         }

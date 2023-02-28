@@ -30,3 +30,4 @@ C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net
 C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.pdb
 C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\tests.genruntimeconfig.cache
 C:\Users\court\OneDrive\Documents\GitHub\RandomPlotGenerator\tests\obj\Debug\net7.0\ref\tests.dll
+C:\Users\activ\Documents\GitHub\RandomPlotGenerator\tests\bin\Debug\net7.0\NetTopologySuite.dll

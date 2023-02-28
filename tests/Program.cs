@@ -5,7 +5,10 @@
 
 
 using RandomPlotGenerator;
-using System;
+using NetTopologySuite.Geometries;
+using System.Collections.Generic;
+
+using Point = RandomPlotGenerator.Point;
 
 
 class Program {
@@ -29,6 +32,10 @@ class Program {
         } else if (args.Contains("Find")){
 
             Test_Find();
+
+        } else if (args.Contains("RandomTri")){
+
+            Test_RandomTri();
 
         }
 
@@ -84,9 +91,6 @@ class Program {
         tree.Find(point, null, out result);
 
         Console.WriteLine(String.Format("Find: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
-
-
-
 
         return;
 
@@ -146,6 +150,37 @@ class Program {
 
         Console.WriteLine(String.Format("SearchNN: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
 
+    }
+
+
+
+    static void Test_RandomTri(){
+
+        // Polygon WKT
+        string wkt = "POLYGON ((513820.1 7017121, 513833.4 7017112, 513843.6 7017102, 513843.6 7017060, 513841.9 7017065, 513837.8 7017077, 513828 7017101, 513822.9 7017113, 513820.1 7017121))";
+
+
+        // Create triangulation
+
+        Triangulation tri = new Triangulation(wkt, null);
+
+
+        // Generate the sample
+
+        List<Coordinate> sample = tri.GenerateRandomPoints(100);
+        List<Point> samplePt = new List<Point>();
+
+        foreach(Coordinate coord in sample){
+            samplePt.Add(new Point(coord[0], coord[1]));
+        }
+
+
+        // Print
+
+        PrintMultiPoint(samplePt);
+
+
+        return;
     }
 
 
