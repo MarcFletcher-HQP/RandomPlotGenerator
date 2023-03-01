@@ -74,23 +74,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\activ\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\fletchm\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+      "projectUniqueName": "C:\\Users\\fletchm\\Documents\\C\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
       "projectName": "RandomPlotGenerator",
-      "projectPath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
-      "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\obj\\",
+      "projectPath": "C:\\Users\\fletchm\\Documents\\C\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+      "packagesPath": "C:\\Users\\fletchm\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\fletchm\\Documents\\C\\RandomPlotGenerator\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\activ\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\fletchm\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
@@ -135,7 +131,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
       }
     }
   }

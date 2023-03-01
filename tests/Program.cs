@@ -29,10 +29,6 @@ class Program {
 
             Test_SearchNN();
 
-        } else if (args.Contains("Find")){
-
-            Test_Find();
-
         } else if (args.Contains("RandomTri")){
 
             Test_RandomTri();
@@ -67,35 +63,6 @@ class Program {
     }
 
 
-    static void Test_Find(){
-
-        RandomPointGenerator rpg = new RandomPointGenerator(null);
-
-        List<Point> grid = rpg.RandomGrid(AOI[0], AOI[1], AOI[2], AOI[3], GridWidth, GridWidth);
-
-        Random rand = new Random();
-
-        int index = rand.Next(0, grid.Count - 1);
-
-
-        Point point = new Point(2, 13);
-        Point result = point;
-
-        KDTree tree = new KDTree();
-        tree.Build(grid, null);
-
-        Console.WriteLine(String.Format("Find: KD-Tree \n{0}", tree.Print(true)));
-
-
-
-        tree.Find(point, null, out result);
-
-        Console.WriteLine(String.Format("Find: nearest neighbour of {0} is {1}", point.Print(), result.Print()));
-
-        return;
-
-    }
-
 
 
     static void Test_SearchNN(){
@@ -111,8 +78,7 @@ class Program {
 
         Point result = new Point(0, 0);
 
-        KDTree tree = new KDTree();
-        tree.Build(grid, null);
+        KDTree tree = new KDTree(grid, null);
 
         tree.Find(point, null, out point);
         tree.SearchNN(point, true, out result);
@@ -177,7 +143,7 @@ class Program {
 
         // Print
 
-        PrintMultiPoint(samplePt);
+        PrintMultiPoint(in samplePt);
 
 
         return;
@@ -186,13 +152,13 @@ class Program {
 
 
 
-    static void PrintMultiPoint(in List<Point> sample){
+    private static void PrintMultiPoint(in List<Point> sample){
 
-        String buff = "MULTIPOINT(";
+        string buff = "";
 
         for(int i = 0; i < sample.Count; i++){
 
-            buff += ($"({sample[i].GetX()} {sample[i].GetY()})");
+            buff += String.Format("({0} {1})", sample[i].X, sample[i].Y);
 
             if (i < sample.Count - 1){
                 buff += ", ";
@@ -200,13 +166,12 @@ class Program {
 
         }
 
-        buff += ")";
-
-        Console.WriteLine(buff);
+        Console.WriteLine(String.Format("MULTIPOINT({0})", buff));
 
         return;
 
     }
+
 
 }
 

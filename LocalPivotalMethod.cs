@@ -1,5 +1,4 @@
 
-
 #define DEBUG
 #undef DEBUG
 
@@ -9,6 +8,16 @@ using System.Collections.Generic;
 namespace RandomPlotGenerator;
 
 
+/* Class: LocalPivotalMethod
+
+It's all been building up to this! The Local Pivotal Method generates a
+random sample that is Spatially Balanced (spread out). 
+
+Regardless of how the candidate sample locations were derived, the local 
+pivotal method will iteratively update the inclusion probability by making 
+nodes square off against their neighbours in a coin flipping contest; the 
+more a node wins, the more weighted in their favour the coin becomes. Nodes 
+that lose all of their initial probability drop out of the contest. */
 public class LocalPivotalMethod {
 
     private readonly Random rand;
@@ -33,15 +42,14 @@ public class LocalPivotalMethod {
 
 
 
-    public void UpdateProbability(ref Point point1, ref Point point2){
-
-
-        /* Flip a weighted coin and, based on the outcome, update the selection probabilities.
-        The current probability assigned to a point determines the weighting applied. 
-        Points containing more probability are given more weighting. 
+    /* Flip a weighted coin and update the selection probabilities. Each node bets
+    its current chance of selection. Winner takes all, until full (i.e. it's selected).
+    The current probability assigned to a point determines the weighting applied, points 
+    containing more probability are given more weighting. 
         
-        After each update, check whether a point can be selected, or excluded.
-        */
+    After each update, check whether a point can be selected, or excluded.
+    */
+    public void UpdateProbability(ref Point point1, ref Point point2){
 
         double totalprob = point1.prob + point2.prob;
 
@@ -93,7 +101,7 @@ public class LocalPivotalMethod {
 
 
 
-
+    /* Generate a sample */
     public List<Point> SamplePoints(List<Point> candidates, int size, int? maxiter){
 
         List<Point> sample = new List<Point>();
@@ -140,10 +148,13 @@ public class LocalPivotalMethod {
 
         // Sort points into a KDTree
 
-        KDTree tree = new KDTree();
-        tree.Build(candidates, null);
+        KDTree tree = new KDTree(candidates, null);
 
 
+        /* Typically the algorithm is close to convergence after visiting each node 
+        at least once. Sometimes this can take a bit longer; how long is "a piece" 
+        of string? 
+        */
 
         for(int i = 0; i < maxiter; i++){
 
@@ -183,58 +194,18 @@ public class LocalPivotalMethod {
 
             }
 
-
-
-            #if DEBUG
-
-            Console.WriteLine(String.Format("SamplePoints: Iteration: {0}  Remaining Points: {1}", i, sampleIdx.Count));
-
-            #endif
-
         }
 
+
+        /* Sometimes not all of the points quite converged on one of the outcomes. If a point is more 
+        likely than not to be included, then include it. */
 
         sample = candidates.FindAll((Point pt) => pt.prob > 0.5);
-
-        #if DEBUG
-
-        for(int i = 0; i < sampleIdx.Count; i++){
-            Point pt = candidates[sampleIdx[i]];
-            Console.WriteLine(String.Format("SampleIdx[{0}]: {1}  ->  {2}  prob: {3}  status: {4}", i, sampleIdx[i], pt.Print(), pt.prob, pt.status));
-        }
-
-        #endif
 
 
         return sample;
 
     }
-
-
-
-
-    private void PrintMultiPoint(in List<Point> sample){
-
-        String buff = "MULTIPOINT(";
-
-        for(int i = 0; i < sample.Count; i++){
-
-            buff += ($"({sample[i].GetX()} {sample[i].GetY()})");
-
-            if (i < sample.Count - 1){
-                buff += ", ";
-            }
-
-        }
-
-        buff += ")";
-
-        Console.WriteLine(buff);
-
-        return;
-
-    }
-
 
 }
 

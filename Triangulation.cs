@@ -1,6 +1,6 @@
 
 #define DEBUG
-#undef DEBUG
+//#undef DEBUG
 
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Triangulate.Tri;
@@ -11,36 +11,45 @@ using NetTopologySuite.Triangulate.Polygon;
 namespace RandomPlotGenerator;
 
 
+/* Class: Triangulation
+
+Triangulation class encapsulates the NetTopologySuite functionality used for:
+    1. Creating a polygon from WKT.
+    2. Creating a triangulation of the imported polygon.
+    3. Providing a number of classes for convenience.
+    4. Providing methods for determining polygon attributes, such as area.
+
+The Triangulation class is responsible for: 
+    1. re-creating the (user) supplied polygon,
+    2. creating a triangulation, 
+    3. generating a random sample of triangles in which to generate points, 
+    4. generating points randomly from within each triangle,
+    5. returning the sample as a list.
+
+The output from this class will precede the use of other classes like 
+LocalPivotalMethod.
+
+*/
 
 public class Triangulation {
 
     private Random rng;
-    private Polygon polygon;    // Not sure of the purpose
+    private Polygon polygon;    // Not sure if this is needed
     private IList<Tri> triangles;
-    private double[] area;
 
 
 
+    /* Constructor for WKT format - mostly used for testing.
+    While not as compact, a WKT string is much more explicit. */
     public Triangulation(string wkt, int? seed){
 
         var reader = new NetTopologySuite.IO.WKTReader();
 
         polygon = (Polygon) reader.Read(wkt);
 
-        
         var triangulator = new ConstrainedDelaunayTriangulator(polygon);
 
         triangles = triangulator.GetTriangles(); 
-
-        
-        area = new double [(triangles.Count)];
-
-        for(int i = 0; i < area.Length; i++){
-
-            area[i] = triangles[i].Area;
-
-        }
-
 
         if(seed is null){
 
@@ -55,6 +64,36 @@ public class Triangulation {
     }
 
 
+    /* Constructor for WKB format - likely to be used in the future.
+    This method is preferable as WKB is more compact and therefore 
+    easier to send via a web-service.
+     */
+    public Triangulation(byte[] wkb, int? seed){
+
+        var reader = new NetTopologySuite.IO.WKBReader();
+
+        polygon = (Polygon) reader.Read(wkb);
+
+        var triangulator = new ConstrainedDelaunayTriangulator(polygon);
+
+        triangles = triangulator.GetTriangles(); 
+
+        if(seed is null){
+
+            rng = new Random();
+
+        } else {
+
+            rng = new Random((int) seed);
+
+        }
+
+    }
+
+
+
+
+    /* Generate a sample of points from the polygon provided */
     public List<Coordinate> GenerateRandomPoints(int? numpts){
 
         if (numpts is null){
@@ -80,7 +119,7 @@ public class Triangulation {
 
 
 
-
+    /* Generate a sample of triangles */
     private void PickRandomTriangles(int? numtris, out int[] sample){
 
         if(numtris is null){
@@ -118,65 +157,82 @@ public class Triangulation {
     }
 
 
+    /* Simulate unequal probability sampling using a fair die and a biased coin
+    
+    To ensure that the probability of sampling a location within the polygon is uniform
+    throughout the whole area, it is necessary to bias the selection of triangles by 
+    perferring those with a larger area. 
+    
+    The Alias Method presents an efficient means of randomly sampling discrete units with 
+    unequal probability. At its core, the method randomly selects a triangle and then flips
+    a biased coin to determine whether the triangle is sampled; with the probability of heads
+    being determined by the proportion of the total area occupied by the triangle. The arrays
+    created in the CreateAliasTables method provide a way to make this process more efficient.
 
+    */
     private void CreateAliasTables(out double[] prob, out int[] alias){
 
-        int N = area.Length;
+        int N = triangles.Count;
 
 
         double totalarea = 0.0;
 
-        foreach(double x in area){
-            totalarea += x;
+        foreach(Tri x in triangles){
+            totalarea += TriArea(x);
         }
 
 
-        prob = new double[area.Length];
-
-        Array.Copy(area, prob, area.Length);
+        alias = new int[triangles.Count];
+        prob = new double[triangles.Count];
 
         for(int i = 0; i < prob.Length; i++){
-            prob[i] = ( (double) N ) * prob[i] / totalarea;
+            prob[i] = ( (double) N ) * TriArea(triangles[i]) / totalarea;
         }
 
 
-        int[] index = Enumerable.Range(0, prob.Length).ToArray();
+        SortedSet<AliasNode> bst = new SortedSet<AliasNode>(new AliasNodeComparer());
 
-        Array.Sort(prob, index);
+        for(int i = 0; i < N; i++){
+
+            bst.Add(new AliasNode(prob[i], i));
+
+        }
 
 
-        alias = new int[index.Length];
-        Array.Copy(index, alias, index.Length); 
+        List<AliasNode> sortednodes = new List<AliasNode>();
+
+        for(int i = 0; i < N; i++){
+
+            AliasNode? minnode = bst.Min;
+            AliasNode? maxnode = bst.Max;
+
+            if((minnode is null || (maxnode is null))){
+                break;
+            }
+
+            bst.Remove(minnode);
+            bst.Remove(maxnode);
+
+            minnode.alias = maxnode.index;
+            maxnode.prob = maxnode.prob - (1 - minnode.prob);
+
+            sortednodes.Add(minnode);
+            bst.Add(maxnode);
+
+        }
+
 
 
         for(int i = 0; i < N; i++){
 
-            // Assumes arrays have been sorted 'i' will be the new smallest, 'N-1' will be the new biggest.
+            int index = sortednodes[i].index;
 
-            alias[i] = index[N-1];
-
-            prob[N-1] = prob[N-1] - (1 - prob[i]);
-
-            double[] cpyprob = new double[prob.Length];     // oof, really?
-            Array.Copy(prob, cpyprob, prob.Length);         // this sucks!
-
-            Array.Sort(prob, index, i + 1, N - 1 - i);      // Order of the first 'i' elements doesn't change.
-            Array.Sort(cpyprob, alias, i + 1, N - 1 - i);   // find a better way!
+            prob[index] = sortednodes[i].prob;
+            alias[index] = sortednodes[i].alias;
 
         }
 
-        prob[N-1] = 1;  // Just in case it didn't work out this way
-
-
-
-        // Return probability array to it's original order
-
         
-        int[] cpyindex = new int[index.Length];     // oof, really?
-        Array.Copy(index, cpyindex, index.Length);         // this sucks!
-
-        Array.Sort(index, prob);
-        Array.Sort(cpyindex, alias);   // find a better way!
 
         return;
 
@@ -184,6 +240,53 @@ public class Triangulation {
 
 
 
+    /* Binary Search Tree representation of the data */
+    private class AliasNode {
+
+        public double prob;
+        public int alias;
+        public int index;
+
+        public AliasNode(double prob, int index){
+
+            this.prob = prob;
+            this.alias = index;
+            this.index = index;
+
+        }
+
+    }
+
+
+    /* Method for ordering AliasNodes in a Binary Search Tree */
+    private class AliasNodeComparer : IComparer<AliasNode> {
+
+        public int Compare(AliasNode? node1, AliasNode? node2){
+
+            if ((node1 is null) || (node2 is null)){
+
+                throw new ArgumentException("AliasNodes cannot be null!");
+
+            }
+
+            return (node1.prob).CompareTo(node2.prob);
+
+        }
+
+    }
+
+
+
+
+    /* Randomly generated a point inside a triangle
+    
+    This method forms two vectors from the vertices of the triangle, originating from the first vertex. A random scaling
+    is applied to each vector and the results are added together to form the position vector for the generated point. As 
+    linear combinations of these vectors span a parallelogram, there is a 50/50 chance that the point generated falls 
+    outside of the triangle. As the second half of the parallelogram is just a reflection of the original triangle, we
+    simply use the coordinates of the point relative to this "mirrored" triangle.
+
+     */
     private Coordinate PickPointInTriangle(Tri triangle){
 
         Coordinate origin = triangle.GetCoordinate(0);
@@ -211,6 +314,14 @@ public class Triangulation {
     }
 
 
+    /* Tests whether a point is interior to the triangle provided. 
+
+    This method utilises the fact that the edge of a triangle defines a line which divides the plane in two. A point
+    that is exterior to the triangle will be on the opposite side of this line to the remaining vertex of the triangle, 
+    for one of the three edges. If the point is on the same side, for all edges, then the point is inside the triangle.
+
+    There are potentially quicker algorithms, but I like the geometric approach.
+    */
     private static bool PointInTriangle(Tri triangle, Coordinate point){
 
         Coordinate origin = triangle.GetCoordinate(0);
@@ -235,6 +346,12 @@ public class Triangulation {
 
 
 
+    /* Class Vector2D: Extension of the Coordinate class
+    
+    The Coordinate class provides the notion of a generic point in NetTopologySuite. Code used elsewhere in 
+    the Triangulation class requires the manipulation of Coordinates in a geometric manner, i.e. as position 
+    vectors. The Vector2D class provides arithmetic operators for manipulating and combining Coordinates.
+     */
     private class Vector2D : Coordinate {
 
         Coordinate origin;
@@ -259,7 +376,6 @@ public class Triangulation {
             origin = new Coordinate(x0, y0);
         }
 
-
         public Coordinate ToCoordinate(){
 
             double x = this.X + origin[0];
@@ -268,7 +384,6 @@ public class Triangulation {
             return new Coordinate(x, y);
 
         }
-
 
         private void SetOrigin(Coordinate origin){
             this.origin = origin;
@@ -284,7 +399,6 @@ public class Triangulation {
             return mirrorvec;
 
         }
-
 
         public static Vector2D operator -(Vector2D u, Vector2D v){
 
@@ -330,7 +444,6 @@ public class Triangulation {
 
         }
 
-
         public static double InnerProduct(Vector2D u, Vector2D v){
 
             if(u.origin != v.origin){
@@ -341,13 +454,11 @@ public class Triangulation {
 
         }
 
-
         public static double Determinant(Vector2D u, Vector2D v){
 
             return u[0] * v[1] - u[1] * v[0];
 
         }
-
 
         public static bool SameSide(Vector2D test, Vector2D line, Vector2D reference){
 
@@ -358,7 +469,6 @@ public class Triangulation {
 
         }
 
-
         public string Print(){
 
             string buff = String.Format("Vector2D: (x, y): ({0}, {1})  origin: ({2}, {3})", this.X, this.Y, origin[0], origin[1]);
@@ -366,7 +476,6 @@ public class Triangulation {
             return buff;
 
         }
-
 
         public override double this[int i]{
             get{ return (i == 0) ? this.X : this.Y; }
@@ -384,6 +493,8 @@ public class Triangulation {
 
     }
 
+
+    /* Static members - Mostly used for print methods (i.e. Debugging) */
 
     static string PrintArray(in double[] xin, int digits){
 
@@ -413,6 +524,17 @@ public class Triangulation {
         buff.Trim();
 
         return buff;
+
+    }
+
+
+    /* Since the class 'Tri' doesn't have a notion of area */
+    static double TriArea(Tri triangle){
+
+        Vector2D v1 = new Vector2D(triangle.GetCoordinate(1), triangle.GetCoordinate(0));
+        Vector2D v2 = new Vector2D(triangle.GetCoordinate(2), triangle.GetCoordinate(0));
+
+        return Math.Abs(Vector2D.Determinant(v1, v2) / 2);
 
     }
 

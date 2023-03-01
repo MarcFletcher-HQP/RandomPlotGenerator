@@ -37,8 +37,8 @@ public class RandomPointGenerator {
 
         Point start = PointInsideBox(xmin, ymin, xmin + dx, ymin + dy);
 
-        int n = Convert.ToInt32(Math.Truncate((xmax - start.GetX()) / dx)) + 2;
-        int m = Convert.ToInt32(Math.Truncate((ymax - start.GetY()) / dy)) + 2;
+        int n = Convert.ToInt32(Math.Truncate((xmax - start.X) / dx)) + 2;
+        int m = Convert.ToInt32(Math.Truncate((ymax - start.Y) / dy)) + 2;
 
         List<Point> grid = new List<Point>();
 
@@ -46,7 +46,7 @@ public class RandomPointGenerator {
 
             for( int j = 0; j < m; j++ ){
 
-                grid.Add(new Point(start.GetX() + i * dx, start.GetY() + j * dy)); 
+                grid.Add(new Point(start.X + i * dx, start.Y + j * dy));
 
             }
 
@@ -57,3 +57,4 @@ public class RandomPointGenerator {
     }
 
 }
+

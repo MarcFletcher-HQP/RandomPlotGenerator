@@ -5,6 +5,12 @@ using System.Collections.Generic;
 namespace RandomPlotGenerator;
 
 
+/* Class: AOIBox
+
+Class for representing a bounding box. Can be used to perform AOI queries on points or other AOIBoxes.
+
+Not really used at the moment.
+ */
 public class AOIBox{
 
     /* private readonly double xmin, ymin, xmax, ymax; */
@@ -29,11 +35,6 @@ public class AOIBox{
 
         }
 
-        /* this.xmin = xmin;
-        this.ymin = ymin;
-        this.xmax = xmax;
-        this.ymax = ymax; */
-
         this.minpt = new Point(xmin, ymin);
         this.maxpt = new Point(xmax, ymax);
 
@@ -42,19 +43,19 @@ public class AOIBox{
 
     public AOIBox(Point minpt, Point maxpt){
 
-        if(maxpt.GetX() < minpt.GetX()){
+        if(maxpt.X < minpt.X){
 
-            double swapx = minpt.GetX();
-            minpt.SetX(maxpt.GetX());
-            minpt.SetX(swapx);
+            double swapx = minpt.X;
+            minpt[0] = maxpt.X;
+            minpt[0] = swapx;
 
         }
 
-        if(maxpt.GetY() < minpt.GetY()){
+        if(maxpt.Y < minpt.Y){
 
-            double swapy = minpt.GetY();
-            minpt.SetY(maxpt.GetY());
-            minpt.SetY(swapy);
+            double swapy = minpt.Y;
+            minpt[1] = maxpt.Y;
+            minpt[1] = swapy;
 
         }
 
@@ -66,16 +67,16 @@ public class AOIBox{
 
     public AOIBox(Point centre, double dx, double dy){
 
-        minpt = new Point(centre.GetX() - dx, centre.GetY() - dy);
-        maxpt = new Point(centre.GetX() + dx, centre.GetY() + dy);
+        minpt = new Point(centre.X - dx, centre.Y - dy);
+        maxpt = new Point(centre.X + dx, centre.Y + dy);
 
     }
 
 
     public Point Centre(){
 
-        double xmid = (minpt.GetX() + maxpt.GetX()) / 2.0;
-        double ymid = (minpt.GetY() + maxpt.GetY()) / 2.0;
+        double xmid = (minpt.X + maxpt.X) / 2.0;
+        double ymid = (minpt.Y + maxpt.Y) / 2.0;
 
         return new Point(xmid, ymid);
 
@@ -86,10 +87,10 @@ public class AOIBox{
 
         Point mid = this.Centre();
 
-        Point minquad1 = new Point(minpt.GetX(), mid.GetY());
-        Point maxquad1 = new Point(mid.GetX(), maxpt.GetY());
-        Point minquad2 = new Point(mid.GetX(), minpt.GetY());
-        Point maxquad2 = new Point(maxpt.GetX(), mid.GetY());
+        Point minquad1 = new Point(minpt.X, mid.Y);
+        Point maxquad1 = new Point(mid.X, maxpt.Y);
+        Point minquad2 = new Point(mid.X, minpt.Y);
+        Point maxquad2 = new Point(maxpt.X, mid.Y);
 
         List<AOIBox> quads = new List<AOIBox>(4);
 
@@ -123,10 +124,10 @@ public class AOIBox{
 
     public bool Contains(Point query){
 
-        return (minpt.GetX() <= query.GetX()) && 
-            (minpt.GetY() <= query.GetY()) &&
-            (maxpt.GetX() >= query.GetX()) &&
-            (maxpt.GetY() >= query.GetY());
+        return (minpt.X <= query.X) && 
+            (minpt.Y <= query.Y) &&
+            (maxpt.X >= query.X) &&
+            (maxpt.Y >= query.Y);
 
     }
 
@@ -141,8 +142,8 @@ public class AOIBox{
 
     public bool Intersects(AOIBox other){
 
-        bool betweenX = ! ( (other.minpt.GetX() >= this.maxpt.GetX()) || (other.maxpt.GetX() <= this.minpt.GetX()) );
-        bool betweenY = ! ( (other.minpt.GetY() >= this.maxpt.GetY()) || (other.maxpt.GetY() <= this.minpt.GetY()) );
+        bool betweenX = ! ( (other.minpt.X >= this.maxpt.X) || (other.maxpt.X <= this.minpt.X) );
+        bool betweenY = ! ( (other.minpt.Y >= this.maxpt.Y) || (other.maxpt.Y <= this.minpt.Y) );
 
         return betweenX && betweenY;
 

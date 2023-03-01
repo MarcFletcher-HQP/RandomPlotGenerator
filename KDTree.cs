@@ -11,31 +11,39 @@ namespace RandomPlotGenerator;
 
 
 
+/* Class: KDTree
 
+This class stores a list of points in a binary tree structure, where each node partitions the plane 
+in alternating dimensions. This structure is efficient at nearest-neighbour searches, which is why it
+is used when sampling with the Local Pivotal Method.
+ */
 public class KDTree {
 
     private KDNode? root;
-    private int Count;
     private readonly int DefaultLeafSize = 40;
     private readonly double DefaultThreshold = 0.1;
 
 
-    // Build (root)
-
-    public void Build(List<Point> points, int? leafsize){
+    
+    /* Construct a KD-Tree from a set of points */
+    public KDTree(List<Point> points, int? leafsize){
 
         if(leafsize is null){
            leafsize = DefaultLeafSize; 
         }
 
         root = BuildNode(points, 0, (int) leafsize);
-        Count = points.Count;
 
     }
 
 
-    // BuildNode
-
+    /* Construct a node in the KD-Tree
+    
+    This implementation sorts points along the dimension being split and 
+    constructs a node from the median point. When the number of points
+    falls below the leaf size, the remaining points are simply stored
+    in a list.
+    */
     private KDNode BuildNode(List<Point> points, int depth, int leafsize){
 
         if(points.Count == 0){
@@ -73,10 +81,17 @@ public class KDTree {
     }
 
 
-    /* FindNode - Finds an existing node in a KDTree. 
-        Note this is basically the same as SearchNN, 
-        only without the equality of references check. */
+    /* Find an existing node in a KDTree. 
 
+    Search through the tree to find the node, or leaf-node, that is nearest to
+    the query point. The local pivotal method updates inclusion probabilities
+    based on the current values for a given node and its nearest neighbour.
+
+    Previously a point would be selected at random from the original array and
+    the nearest neighbour in the tree, i.e. the same point, would be found and
+    updated. However, it seems that the tree construction creates a shallow 
+    copy, which renders the Find method unnecessary. 
+    */
     public void Find(in Point query, double? threshold, out Point found){
 
         if( root is null ){
@@ -100,8 +115,8 @@ public class KDTree {
         if(proximity2 > Math.Pow((double) threshold, 2.0)){
 
             throw new ArgumentException(
-                String.Format("Query point ({0}, {1}) is not in KDTree. \nNearest point was ({2}, {3})", 
-                    query.GetX(), query.GetY(), result.GetX(), result.GetY())
+                String.Format("Query point {0} is not in KDTree. \nNearest point was {1}", 
+                    query.Print(), result.Print())
             );
 
         }
@@ -113,7 +128,7 @@ public class KDTree {
     }
 
 
-
+    /* Check whether "this node" is the node we're looking for. */
     private void FindNode(KDNode node, in Point query, ref double bestdist2, ref Point result){
 
         double distance2 = node.point.Distance2(query);
@@ -182,7 +197,12 @@ public class KDTree {
     }
 
 
-
+    /* Search for the nearest non-trivial neighbour
+    
+    Of the two components of the Local Pivotal Method, this is certainly one of them. Comes
+    with the (highly suggested) option to restrict the search to points that have not already
+    been excluded from the search; pretty much all the 'Point.status' member is good for.
+    */
     public void SearchNN(in Point query, bool onlyundefined, out Point result){
 
         if( root is null ){
@@ -199,9 +219,13 @@ public class KDTree {
     }
 
 
+    /* Is this node the one you're looking for? */
     private void SearchNNNode(KDNode node, in Point query, bool onlyundefined, ref double bestdist2, ref Point result){
         
         double distance2 = node.point.Distance2(query);
+
+        /* Exclude the trivial result from the search by checking whether query and 
+        node.point refer to the same memory address. */
 
         if(!Object.ReferenceEquals(query, node.point) && 
             (!onlyundefined || node.point.IsUndefined()) && 
@@ -280,6 +304,8 @@ public class KDTree {
     }
 
 
+    /* Sometimes two nodes are the same distance apart, so flip a coin.
+    This happens a lot when the sampling units form a grid. */
     public bool BreakTie(){
 
         Random rand = new Random();
@@ -289,6 +315,8 @@ public class KDTree {
     }
 
 
+    /* Who ordered a print method? limited utility really, the points
+    don't come out in any kind of civilized order. */
     public string Print(bool? nodesonly){
 
         if(nodesonly is null){
@@ -307,8 +335,7 @@ public class KDTree {
 
 
 
-    // Class for comparing points
-
+    /* Need to tell List.Sort how to compare Points */
     private class PointComparer : IComparer<Point> {
 
         public readonly int dimension;
@@ -342,8 +369,10 @@ public class KDTree {
     }
 
 
-    // KDNode class
-
+    /* Class: KDNode
+    
+    Pretty much as it sounds, a node in the KD-Tree. Stores a point and child nodes, unless it has leaves.
+    */
     private class KDNode {
 
         public Point point;
