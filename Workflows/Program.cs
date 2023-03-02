@@ -105,6 +105,12 @@ class Program{
                 Test_KDTree();
 
             }
+
+            if(testall || args.Contains("LPM")){
+
+                Test_LPM();
+
+            }
             
 
         }
@@ -336,6 +342,8 @@ class Program{
 
         SamplePolygon polygon = new SamplePolygon(wkt, null);
 
+        Console.WriteLine(String.Format("Test_LPM: polygon: {0}", SamplePolygon.SamplePolygonWKT(polygon)));
+
 
         // Randomly generate points inside the polygon, convert to a 'Point'.
 
@@ -351,7 +359,7 @@ class Program{
 
         // Print output
 
-        Console.WriteLine(String.Format("Test_LPM: sample: {0}", Point.MultiPointToWKT(sample)));
+        Console.WriteLine(String.Format("Test_LPM: numplots: {0}  candidates: {1}  sample: {2}", numplots, candidates.Count, Point.MultiPointToWKT(sample)));
 
 
         Console.WriteLine("");

@@ -124,12 +124,6 @@ public class SamplePolygon {
 
     public List<Coordinate> RandomGrid(double dx, double dy){
 
-        #if DEBUG
-
-        Console.WriteLine(String.Format("RandomGrid: Envelope: {0}  dx: {1}  dy: {2}", polygon.Envelope.ToString(), dx, dy));
-
-        #endif
-
         Envelope box = polygon.EnvelopeInternal;
 
         return this.RandomGrid(box.MinX, box.MinY, box.MaxX, box.MaxY, dx, dy);
@@ -139,32 +133,12 @@ public class SamplePolygon {
 
     public List<Coordinate> RandomGrid(double xmin, double ymin, double xmax, double ymax, double dx, double dy) {
 
-        #if DEBUG
-
-        Console.WriteLine(
-            String.Format("RandomGrid: xmin: {0}  ymin: {1}  xmax: {2}  ymax: {3}  dx: {4}  dy: {5}", xmin, ymin, xmax, ymax, dx, dy)
-        );
-
-        #endif
-
-
         // Generate a random starting point and create a grid
 
         Coordinate start = PointInsideBox(xmin, ymin, xmin + dx, ymin + dy);
 
         int n = Convert.ToInt32(Math.Truncate((xmax - start.X) / dx)) + 2;
         int m = Convert.ToInt32(Math.Truncate((ymax - start.Y) / dy)) + 2;
-
-
-        #if DEBUG
-
-        Console.WriteLine(
-            String.Format("RandomGrid: start: {0}  n: {1}  m: {2}", start.ToString(), n, m)
-        );
-
-        #endif
-
-
 
         List<Coordinate> grid = new List<Coordinate>();
 

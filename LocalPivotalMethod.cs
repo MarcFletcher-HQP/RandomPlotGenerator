@@ -32,7 +32,7 @@ public class LocalPivotalMethod {
         }
 
         if(cutoff is null){
-            SelectionCutoff = 0.95;
+            SelectionCutoff = 1.0 - 1E-08;
         } else {
             SelectionCutoff = (double) cutoff;
         }
