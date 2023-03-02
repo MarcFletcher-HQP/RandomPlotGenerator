@@ -26,6 +26,19 @@
         "runtime": {
           "lib/netcoreapp2.1/_._": {}
         }
+      },
+      "RandomPlotGenerator/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v7.0",
+        "dependencies": {
+          "NetTopologySuite": "2.5.0"
+        },
+        "compile": {
+          "bin/placeholder/RandomPlotGenerator.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/RandomPlotGenerator.dll": {}
+        }
       }
     }
   },
@@ -66,11 +79,17 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "RandomPlotGenerator/1.0.0": {
+      "type": "project",
+      "path": "../RandomPlotGenerator.csproj",
+      "msbuildProject": "../RandomPlotGenerator.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net7.0": [
-      "NetTopologySuite >= 2.5.0"
+      "NetTopologySuite >= 2.5.0",
+      "RandomPlotGenerator >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -80,11 +99,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
-      "projectName": "RandomPlotGenerator",
-      "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+      "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj",
+      "projectName": "Workflows",
+      "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj",
       "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\obj\\",
+      "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -101,7 +120,11 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj": {
+              "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

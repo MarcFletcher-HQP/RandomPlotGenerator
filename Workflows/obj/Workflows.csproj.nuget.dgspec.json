@@ -1,0 +1,136 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+        "projectName": "RandomPlotGenerator",
+        "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj",
+        "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\activ\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "NetTopologySuite": {
+              "target": "Package",
+              "version": "[2.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj",
+        "projectName": "Workflows",
+        "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\Workflows.csproj",
+        "packagesPath": "C:\\Users\\activ\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\Workflows\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\activ\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj": {
+                "projectPath": "C:\\Users\\activ\\Documents\\GitHub\\RandomPlotGenerator\\RandomPlotGenerator.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "NetTopologySuite": {
+              "target": "Package",
+              "version": "[2.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

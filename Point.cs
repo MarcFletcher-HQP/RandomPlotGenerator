@@ -136,7 +136,7 @@ public class Point : Coordinate {
 
 
     /* Output will need to be written to WKT (for now). Returning as a multipoint. */
-    static string MultiPointToWKT(List<Point> points){
+    public static string MultiPointToWKT(in List<Point> points){
 
         string buff = "";
 
@@ -149,9 +149,44 @@ public class Point : Coordinate {
 
         char[] cleanup = {',', ' '};
 
-        buff.TrimEnd(cleanup);
+        buff = buff.TrimEnd(cleanup);
 
         return String.Format("MULTIPOINT({0})", buff);
+
+    }
+
+
+    public static string MultiPointToWKT(in List<Coordinate> points){
+
+        string buff = "";
+
+        foreach(Coordinate pt in points){
+
+            buff += String.Format("({0} {1})", pt.X, pt.Y);
+            buff += ", ";
+
+        }
+
+        char[] cleanup = {',', ' '};
+
+        buff = buff.TrimEnd(cleanup);
+
+        return String.Format("MULTIPOINT({0})", buff);
+
+    }
+
+
+    public static List<Point> CoordinateToPoint(List<Coordinate> xy){
+
+        List<Point> points = new List<Point>();
+
+        foreach(Coordinate pt in xy){
+
+            points.Add(new Point(pt.X, pt.Y));
+
+        }
+
+        return points;
 
     }
 
