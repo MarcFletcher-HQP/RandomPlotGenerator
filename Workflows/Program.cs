@@ -5,7 +5,6 @@ using NetTopologySuite.Triangulate.Tri;
 
 using RandomPlotGenerator;
 
-using Point = RandomPlotGenerator.Point;
 
 class Program{
 
@@ -22,7 +21,6 @@ class Program{
 
     /* Program Defaults */
     static int NumCandidates = 1000;
-    static int digits = 4;
     static int seed = 117;
     static double gridsizeX = 5.0;
     static double gridsizeY = 15.0;
@@ -82,21 +80,21 @@ class Program{
 
         if(args.Contains("Test")){
 
-            if(testall || args.Contains("SamplePolygon")){
+            if(testall || args.Contains("Simple")){
 
-                Test_SamplePolygon();
-
-            }
-
-            if(testall || args.Contains("RandomPoints")){
-
-                Test_RandomPoints();
+                Test_Simple();
 
             }
 
-            if(testall || args.Contains("RandomGrid")){
+            if(testall || args.Contains("Weighted")){
 
-                Test_RandomGrid();
+                Test_Weighted();
+
+            }
+
+            if(testall || args.Contains("Grid")){
+
+                Test_Grid();
 
             }
 
@@ -106,9 +104,9 @@ class Program{
 
             }
 
-            if(testall || args.Contains("LPM")){
+            if(testall || args.Contains("SpatiallyBalanced")){
 
-                Test_LPM();
+                Test_SpatiallyBalanced();
 
             }
             
@@ -140,24 +138,28 @@ class Program{
 
         // Read polygon and create triangulation
 
-        SamplePolygon polygon = new SamplePolygon(wkt, null);
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
+
+        Polygon polygon = (Polygon) reader.Read(wkt);
 
 
         // Randomly generate points inside the polygon, convert to a 'Point'.
 
-        List<Coordinate> candidates = polygon.GenerateRandomPoints(NumCandidates);
+        Simple srs = new Simple(polygon, null);
+
+        List<Coordinate> candidates = srs.Sample(NumCandidates, null);
 
 
         // Generate sample using the Local Pivotal Method
 
-        LocalPivotalMethod lpm = new LocalPivotalMethod(null, null);
+        SpatiallyBalanced lpm = new SpatiallyBalanced(null, null);
 
-        List<Point> sample = lpm.SamplePoints(candidates, (int) numplots, null);
+        List<Coordinate> sample = lpm.Sample(candidates, (int) numplots, null);
 
 
         // Return WKT for the sample
 
-        return Point.MultiPointToWKT(in sample);
+        return Print.MultiPointWKT(sample);
 
     }
 
@@ -167,27 +169,33 @@ class Program{
 
     /* Tests */
 
-    static void Test_SamplePolygon(){
+    static void Test_Simple(){
 
         if(wkt is null){
             throw new ArgumentException("No WKT provided for input polygon");
         }
 
 
-        // Print input before any possible errors occur, due to SamplePolygon();
+        // Print input before any possible errors occur, due to Simple();
 
-        Console.WriteLine(String.Format("Test_SamplePolygon: Input WKT: {0}", wkt));
+        Console.WriteLine(String.Format("Test_Simple: Input WKT: {0}", wkt));
 
 
         // Read polygon and create triangulation and print geometric info
 
-        SamplePolygon polygon = new SamplePolygon(wkt, null);
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
 
-        SamplePolygon.TriangulationArea(polygon, out double[] area);
+        Polygon polygon = (Polygon) reader.Read(wkt);
 
-        Console.WriteLine(String.Format("Test_SamplePolygon: Polygon: {0}", SamplePolygon.SamplePolygonWKT(polygon)));
-        Console.WriteLine(String.Format("Test_SamplePolygon: Triangulation: {0}", SamplePolygon.TriangulationWKT(polygon)));
-        Console.WriteLine(String.Format("Test_SamplePolygon: Triangle Areas: {0}", SamplePolygon.PrintArray(area, 2)));
+        Simple srs = new Simple(polygon, null);
+
+
+        // Print diagnostics
+
+        Console.WriteLine(String.Format("Test_Simple: Polygon: {0}", polygon.ToString()));
+
+        Console.WriteLine(String.Format("Test_Simple: {0}", srs.Print(2)));
+
         Console.WriteLine("");
 
 
@@ -197,7 +205,7 @@ class Program{
 
 
 
-    static void Test_RandomPoints(){
+    static void Test_Weighted(){
 
         if(wkt is null){
             throw new ArgumentException("No WKT provided for input polygon");
@@ -207,36 +215,37 @@ class Program{
         /* Deliberately ignoring the default number of candidates, bit hard to see what's 
         going on when you print 1,000 points! */
 
-        int candidates = 10;
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
 
+        Polygon polygon = (Polygon) reader.Read(wkt);
 
-        SamplePolygon polygon = new SamplePolygon(wkt, seed);
+        Simple srs = new Simple(polygon, null);
+
+        srs.SelectionProbability(out double[] prob);
+
+        Weighted wrs = new Weighted(prob, null);
 
 
         // Check the alias table
 
-        polygon.CreateAliasTables(out double[] prob, out int[] alias);
-
-        Console.WriteLine(String.Format("Test_GenerateRandomPoints: Prob: {0}", SamplePolygon.PrintArray(prob, digits)));
-        Console.WriteLine(String.Format("Test_GenerateRandomPoints: Alias: {0}", SamplePolygon.PrintArray(alias)));
+        Console.WriteLine("Test_Weighted: {0}", wrs.Print(4));
 
 
         // Randomly pick triangles
 
-        polygon.PickRandomTriangles(candidates, out int[] index);
+        int candidates = 10;
 
-        Console.WriteLine(String.Format("Test_GenerateRandomPoints: Index: {0}", SamplePolygon.PrintArray(index)));
+        List<int> index = wrs.Sample(candidates);
+
+        Console.WriteLine(String.Format("Selected Triangles: {0}", Print.List<int>(index)));
 
 
         // Generate Points from Triangles
 
-        List<Coordinate> sample = polygon.GenerateRandomPoints(candidates);
+        List<Coordinate> sample = srs.Sample(candidates, null);
 
-        List<Point> samplepts = Point.CoordinateToPoint(sample);
-
-        Console.WriteLine(String.Format("Test_GenerateRandomPoints: Sample: {0}", Point.MultiPointToWKT(samplepts)));
+        Console.WriteLine(String.Format("Sample: {0}", Print.MultiPointWKT(sample)));
         
-
         Console.WriteLine("");
 
 
@@ -245,21 +254,25 @@ class Program{
     }
 
 
-    static void Test_RandomGrid(){
+    static void Test_Grid(){
 
         if(wkt is null){
             throw new ArgumentException("No WKT provided for input polygon");
         }
 
-        SamplePolygon polygon = new SamplePolygon(wkt, seed);
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
 
-        Console.WriteLine(String.Format("Test_RandomGrid: polygon: {0}", SamplePolygon.SamplePolygonWKT(polygon)));
+        Polygon polygon = (Polygon) reader.Read(wkt);
+
+        Console.WriteLine(String.Format("Test_Grid: polygon: {0}", polygon.ToString()));
 
 
+        Grid grid = new Grid(polygon, seed);
 
-        List<Coordinate> grid = polygon.RandomGrid(gridsizeX, gridsizeY);
 
-        Console.WriteLine(String.Format("Test_RandomGrid: grid: {0}", Point.MultiPointToWKT(grid)));
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY);
+
+        Console.WriteLine(String.Format("Test_Grid: Count: {1}  sample: {0}", Print.MultiPointWKT(sample), sample.Count));
 
         Console.WriteLine("");
 
@@ -275,33 +288,39 @@ class Program{
             throw new ArgumentException("No WKT provided for input polygon");
         }
 
-        SamplePolygon polygon = new SamplePolygon(wkt, seed);
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
 
-        List<Point> grid = Point.CoordinateToPoint( polygon.RandomGrid(gridsizeX, gridsizeY) );
+        Polygon polygon = (Polygon) reader.Read(wkt);
+
+        Grid grid = new Grid(polygon, seed);
+
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY);
 
 
         // Print Grid
 
-        Console.WriteLine(String.Format("Test_KDTree: polygon: {0}", SamplePolygon.SamplePolygonWKT(polygon)));
-        Console.WriteLine(String.Format("Test_KDTree: grid: {0}", Point.MultiPointToWKT(grid)));
+        Console.WriteLine(String.Format("Test_KDTree: polygon: {0}", polygon.ToString()));
+        Console.WriteLine(String.Format("Test_KDTree: grid: {0}", Print.MultiPointWKT(sample)));
 
 
         // Construct KDTree
 
-        KDTree tree = new KDTree(grid, null);
+        List<SampleUnit> samplepts = SampleUnit.CreateSampleList(sample, null);
+
+        KDTreeSampleUnit tree = new KDTreeSampleUnit(samplepts, null);
 
 
         /* Search through nearest neighbours. */
 
-        Point query = grid[(int) grid.Count/2];
+        SampleUnit query = samplepts[(int) samplepts.Count/2];
 
-        Console.WriteLine(String.Format("Test_KDTree: SearchNN: query: {0}", query.ToWKT()));
+        Console.WriteLine(String.Format("Test_KDTree: SearchNN: query: {0}", query.ToString()));
 
-        List<Point> neighbours = new List<Point>();
+        List<SampleUnit> neighbours = new List<SampleUnit>();
 
         for (int i = 0; i < 6; i++){
 
-            tree.SearchNN(query, true, out Point neighbour);
+            tree.SearchNN(query, true, out SampleUnit neighbour);
 
             neighbour.Exclude();
 
@@ -309,12 +328,12 @@ class Program{
 
             Console.WriteLine(
                 String.Format("Test_KDTree: SearchNN: i: {0}  neighbour: {1}  Distance: {2}", 
-                    i, neighbour.ToWKT(), query.Distance(neighbour))
+                    i, neighbour.ToString(), query.Distance(neighbour))
             );
 
         }
 
-        Console.WriteLine(String.Format("Test_KDTree: SearchNN All Neighbours: {0}", Point.MultiPointToWKT(neighbours)));
+        Console.WriteLine(String.Format("Test_KDTree: SearchNN All Neighbours: {0}", Print.MultiPointWKT<SampleUnit>(neighbours)));
 
         Console.WriteLine("");
 
@@ -323,43 +342,44 @@ class Program{
     }
 
 
-    static void Test_LPM(){
+    static void Test_SpatiallyBalanced(){
 
         if(wkt is null){
-
             throw new ArgumentException("No WKT provided for input polygon");
-
         }
 
         if(numplots is null){
-
             throw new ArgumentException("Number of plots has not been provided");
-
         }
 
 
         // Read polygon and create triangulation
 
-        SamplePolygon polygon = new SamplePolygon(wkt, null);
+        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
 
-        Console.WriteLine(String.Format("Test_LPM: polygon: {0}", SamplePolygon.SamplePolygonWKT(polygon)));
+        Polygon polygon = (Polygon) reader.Read(wkt);
+
+        Console.WriteLine(String.Format("Test_SpatiallyBalanced: polygon: {0}", polygon.ToString()));
 
 
-        // Randomly generate points inside the polygon, convert to a 'Point'.
+        // Randomly generate points inside the polygon, convert to a 'SampleUnit'.
 
-        List<Coordinate> candidates = polygon.GenerateRandomPoints(NumCandidates);
+        Simple srs = new Simple(polygon, null);
+
+        List<Coordinate> candidates = srs.Sample(NumCandidates, null);
+
 
 
         // Generate sample using the Local Pivotal Method
 
-        LocalPivotalMethod lpm = new LocalPivotalMethod(seed, null);
+        SpatiallyBalanced lpm = new SpatiallyBalanced(seed, null);
 
-        List<Point> sample = lpm.SamplePoints(candidates, (int) numplots, null);
+        List<Coordinate> sample = lpm.Sample(candidates, (int) numplots, null);
 
 
         // Print output
 
-        Console.WriteLine(String.Format("Test_LPM: numplots: {0}  candidates: {1}  sample: {2}", numplots, candidates.Count, Point.MultiPointToWKT(sample)));
+        Console.WriteLine(String.Format("Test_SpatiallyBalanced: numplots: {0}  candidates: {1}  sample: {2}", numplots, candidates.Count, Print.MultiPointWKT(sample)));
 
 
         Console.WriteLine("");
