@@ -32,10 +32,8 @@ public class Weighted {
         
 
         alias = new int[Count];
-        
-        weights = new double[Count];
-        
-        Array.Copy(prob, weights, Count);
+
+        weights = Array.ConvertAll<double, double>(prob, (double p) => (double) Count * p);
 
 
 
@@ -63,7 +61,7 @@ public class Weighted {
             bst.Remove(maxnode);
 
             minnode.alias = maxnode.index;
-            maxnode.prob = maxnode.prob - (1 - minnode.prob);
+            maxnode.weight = maxnode.weight - (1 - minnode.weight);
 
             sortednodes.Add(minnode);
             bst.Add(maxnode);
@@ -74,7 +72,7 @@ public class Weighted {
         for(int i = 0; i < Count; i++){
 
             int index = sortednodes[i].index;
-            prob[index] = sortednodes[i].prob;
+            weights[index] = sortednodes[i].weight;
             alias[index] = sortednodes[i].alias;
 
         }
@@ -119,13 +117,13 @@ public class Weighted {
     /* Binary Search Tree representation of the data */
     private class AliasNode {
 
-        public double prob;
+        public double weight;
         public int alias;
         public int index;
 
-        public AliasNode(double prob, int index){
+        public AliasNode(double weight, int index){
 
-            this.prob = prob;
+            this.weight = weight;
             this.alias = index;
             this.index = index;
 
@@ -145,7 +143,7 @@ public class Weighted {
 
             }
 
-            return (node1.prob).CompareTo(node2.prob);
+            return (node1.weight).CompareTo(node2.weight);
 
         }
 
@@ -167,8 +165,6 @@ public class Weighted {
             buff += String.Format("i: {0}  Alias: {1}  Weight: {2}\n", i, alias[i], Math.Round(weights[i], (int) digits));
 
         }
-
-        buff += "\n";
 
         return buff;
 

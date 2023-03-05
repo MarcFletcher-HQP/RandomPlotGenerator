@@ -71,6 +71,8 @@ class Program{
 
                 string response = Workflow_Survival();
 
+                Console.WriteLine(response);
+
             }
 
         }
@@ -223,10 +225,16 @@ class Program{
 
         srs.SelectionProbability(out double[] prob);
 
-        Weighted wrs = new Weighted(prob, null);
+        Weighted wrs = new Weighted(prob, seed);
 
 
         // Check the alias table
+
+        for(int i = 0; i < prob.Length; i++){
+            prob[i] = Math.Round(prob[i], 4);
+        }
+
+        Console.WriteLine("Test_Weighted: Prob: {0}", Print.Array<double>(prob));
 
         Console.WriteLine("Test_Weighted: {0}", wrs.Print(4));
 
@@ -237,14 +245,14 @@ class Program{
 
         List<int> index = wrs.Sample(candidates);
 
-        Console.WriteLine(String.Format("Selected Triangles: {0}", Print.List<int>(index)));
+        Console.WriteLine(String.Format("Test_Weighted: Selected Triangles: {0}", Print.List<int>(index)));
 
 
         // Generate Points from Triangles
 
         List<Coordinate> sample = srs.Sample(candidates, null);
 
-        Console.WriteLine(String.Format("Sample: {0}", Print.MultiPointWKT(sample)));
+        Console.WriteLine(String.Format("Test_Weighted: Sample: {0}", Print.MultiPointWKT(sample)));
         
         Console.WriteLine("");
 
@@ -388,8 +396,5 @@ class Program{
         return;
 
     }
-    
-
-
 
 }

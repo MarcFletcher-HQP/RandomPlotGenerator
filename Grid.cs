@@ -73,20 +73,9 @@ public class Grid {
     }
 
 
-    public void Print(int? digits){
+    public string Print(){
 
-        if(digits is null){
-
-            digits = 4;
-
-        }
-
-        Console.WriteLine("Grid.Print: Envelope");
-
-        Console.WriteLine(bbox.ToString());
-
-        Console.WriteLine("");
-
+        return String.Format("Grid.Print: Envelope: {0}", bbox.ToString());
 
     }
 

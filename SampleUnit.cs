@@ -130,14 +130,9 @@ public class SampleUnit : Coordinate {
 
 
     /* WKT for a single point */
-    public void Print(){
+    public string Print(){
 
-        Console.WriteLine(
-            String.Format("POINT({0} {1}):  prob: {2}  status: {3}", 
-                this[0], this[1], this.prob, this.status)
-        );
-
-        return;
+        return String.Format("POINT({0} {1}):  prob: {2}  status: {3}", this[0], this[1], this.prob, this.status);
 
     }
 

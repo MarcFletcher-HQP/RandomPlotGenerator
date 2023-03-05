@@ -93,7 +93,7 @@ public class Simple {
 
         for(int i = 0; i < prob.Length; i++){
 
-            prob[i] = ( (double) triangulation.Count ) * Area(triangulation[i]) / totalarea;
+            prob[i] = Area(triangulation[i]) / totalarea;
 
         }
 
@@ -332,11 +332,14 @@ public class Simple {
 
         }
 
-        string strbuff = String.Format("Triangulation");
+        areabuff = areabuff.TrimEnd(trimchars);
 
-        strbuff += String.Format("MULTIPOLYGON ({0})", polybuff);
 
-        strbuff += String.Format("Total Area: {0}  Areas: {1}", Math.Round(totalarea, (int) digits), areabuff);
+        string strbuff = String.Format("Triangulation: ");
+
+        strbuff += String.Format("MULTIPOLYGON ({0})\n", polybuff);
+
+        strbuff += String.Format("Total Area: {0}  Areas: {1}\n", Math.Round(totalarea, (int) digits), areabuff);
 
         return strbuff;
 

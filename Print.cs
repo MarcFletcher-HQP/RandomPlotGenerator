@@ -39,12 +39,37 @@ public class Print {
         foreach(T x in array){
 
             buff += x;
-            buff += " ";
+            buff += ", ";
 
         }
+
+        char[] cleanup = {',', ' '};
+
+        buff = buff.TrimEnd(cleanup);
+
+        return buff;
+
+    }
+
+
+    static public string Array<T>(T[] array){
+
+        string buff = "";
+
+        foreach(T x in array){
+
+            buff += x;
+            buff += ", ";
+
+        }
+
+        char[] cleanup = {',', ' '};
+
+        buff = buff.TrimEnd(cleanup);
 
         return buff;
 
     }
 
 }
+
