@@ -7,6 +7,9 @@ being determined by the proportion of the total area occupied by the triangle. T
 created in the CreateAliasTables method provide a way to make this process more efficient.
 
 */
+using System;
+using System.Collections.Generic;
+
 public class Weighted {
 
     public int Count;
@@ -50,8 +53,8 @@ public class Weighted {
 
         for(int i = 0; i < Count; i++){
 
-            AliasNode? minnode = bst.Min;
-            AliasNode? maxnode = bst.Max;
+            AliasNode minnode = bst.Min;
+            AliasNode maxnode = bst.Max;
 
             if((minnode is null || (maxnode is null))){
                 break;
@@ -135,7 +138,7 @@ public class Weighted {
     /* Method for ordering AliasNodes in a Binary Search Tree */
     private class AliasNodeComparer : IComparer<AliasNode> {
 
-        public int Compare(AliasNode? node1, AliasNode? node2){
+        public int Compare(AliasNode node1, AliasNode node2){
 
             if ((node1 is null) || (node2 is null)){
 
