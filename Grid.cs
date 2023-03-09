@@ -20,7 +20,7 @@ public class Grid {
     private Envelope bbox;
 
 
-    public Grid(in Polygon polygon, int? seed){
+    public Grid(in Geometry aoi, int? seed){
 
         if(seed is null){
 
@@ -32,12 +32,19 @@ public class Grid {
 
         }
 
-        bbox = polygon.EnvelopeInternal;
+        bbox = aoi.EnvelopeInternal;
 
     }
 
 
-    public List<Coordinate> Sample(double dx, double dy) {
+    public List<Coordinate> Sample(double dx, double dy, Geometry? aoi) {
+
+        if(aoi is not null && aoi is not Polygon && aoi is not MultiPolygon){
+
+            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
+
+        }
+
 
         double xmin = bbox.MinX;
         double ymin = bbox.MinY;
@@ -68,9 +75,40 @@ public class Grid {
 
         }
 
+
+        if(aoi is not null){
+
+            grid_intersecting_aoi(grid, aoi);
+
+        }
+
         return grid;
 
     }
+
+
+
+    private static void grid_intersecting_aoi(List<Coordinate> grid, Geometry aoi){
+
+        List<int> index = new List<int>();
+
+        for(int i = grid.Count - 1; i >= 0; i--){
+
+            Point point = new Point(grid[i]);
+
+            if(point.Intersects(aoi)){
+
+                grid.RemoveAt(i);
+
+            }
+
+        }
+
+
+        return;
+
+    }
+
 
 
     public string Print(){

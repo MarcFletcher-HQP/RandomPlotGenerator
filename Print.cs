@@ -1,5 +1,6 @@
 
 
+using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
 
 namespace RandomPlotGenerator;
@@ -12,22 +13,36 @@ interface Point2D {
 
 public class Print {
 
-    static public string MultiPointWKT<T>(List<T> points) where T : Coordinate{
+    static public string? MultiPointWKT<T>(List<T> points) where T : Coordinate{
 
-        string buff = "";
+        Point[] pointarr = new Point[points.Count];
 
-        foreach(T pt in points){
+        for(int i = 0; i < points.Count; i++){
 
-            buff += String.Format("({0} {1})", pt.X, pt.Y);
-            buff += ", ";
+            pointarr[i] = new Point((Coordinate) points[i]);
 
         }
 
-        char[] cleanup = {',', ' '};
+        MultiPoint multipoint = new MultiPoint(pointarr);
 
-        buff = buff.TrimEnd(cleanup);
+        return multipoint.ToString();
 
-        return String.Format("MULTIPOINT({0})", buff);
+    }
+
+
+    static public string? MultiPointWKB<T>(List<T> points) where T : Coordinate{
+
+        Point[] pointarr = new Point[points.Count];
+
+        for(int i = 0; i < points.Count; i++){
+
+            pointarr[i] = new Point((Coordinate) points[i]);
+
+        }
+
+        MultiPoint multipoint = new MultiPoint(pointarr);
+
+        return WKBWriter.ToHex(multipoint.ToBinary());
 
     }
 

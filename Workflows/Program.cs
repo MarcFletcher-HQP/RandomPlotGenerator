@@ -1,7 +1,7 @@
 ﻿
 
+using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Triangulate.Tri;
 
 using RandomPlotGenerator;
 
@@ -16,6 +16,7 @@ class Program{
 
     /* Example Inputs */
     static string ExampleWKT = "POLYGON ((513820.1 7017121, 513833.4 7017112, 513843.6 7017102, 513843.6 7017060, 513841.9 7017065, 513837.8 7017077, 513828 7017101, 513822.9 7017113, 513820.1 7017121))";
+    static string ExampleWKB = "0103000000010000000900000066666666705C1F4100000040A8C45A419A999999A55C1F4100000000A6C45A4166666666CE5C1F4100000080A3C45A4166666666CE5C1F410000000099C45A419A999999C75C1F41000000409AC45A4133333333B75C1F41000000409DC45A4100000000905C1F4100000040A3C45A419A9999997B5C1F4100000040A6C45A4166666666705C1F4100000040A8C45A41";
     static int ExampleNumPlots = 5;
 
 
@@ -69,7 +70,7 @@ class Program{
 
             if(testall || args.Contains("Survival")){
 
-                string response = Workflow_Survival();
+                string? response = Workflow_Survival();
 
                 Console.WriteLine(response);
 
@@ -81,6 +82,12 @@ class Program{
         /* Run some tests instead */
 
         if(args.Contains("Test")){
+
+            if(testall || args.Contains("Geometry")){
+
+                Test_Geometry();
+
+            }
 
             if(testall || args.Contains("Simple")){
 
@@ -122,32 +129,81 @@ class Program{
 
 
 
+    /* Import Geometry */
+
+    static Geometry wkt_to_geometry(string wkt){
+
+        if(wkt is null){
+            throw new ArgumentException("No WKT provided for input AOI");
+        }
+
+
+        // Read aoi and create triangulation
+
+        var reader = new WKTReader();
+
+        Geometry geom = reader.Read(wkt);
+
+        if(geom is not Polygon && geom is not MultiPolygon){
+
+            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
+
+        }
+
+        return geom;
+
+    }
+
+
+
+    static Geometry wkb_to_geometry(string wkb){
+
+        if(wkb is null){
+            throw new ArgumentException("No WKB provided for input");
+        }
+
+
+        // Read aoi and create triangulation
+
+        var reader = new WKBReader();
+
+        byte[] hex = WKBReader.HexToBytes(wkb);
+
+        Geometry geom = reader.Read(hex);
+
+        if(geom is not Polygon && geom is not MultiPolygon){
+
+            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
+
+        }
+
+        return geom;
+
+    }
+
+
+
 
     /* Workflows */
 
-    static string Workflow_Survival(){
+    static string? Workflow_Survival(){
 
         // Check arguments
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
         if(numplots is null){
             throw new ArgumentException("Number of plots was not provided");
         }
 
-
-        // Read polygon and create triangulation
-
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
-
-        Polygon polygon = (Polygon) reader.Read(wkt);
+        Geometry aoi = wkt_to_geometry(wkt);
 
 
-        // Randomly generate points inside the polygon, convert to a 'Point'.
+        // Randomly generate points inside the aoi, convert to a 'Point'.
 
-        Simple srs = new Simple(polygon, null);
+        Simple srs = new Simple(aoi, null);
 
         List<Coordinate> candidates = srs.Sample(NumCandidates, null);
 
@@ -171,10 +227,32 @@ class Program{
 
     /* Tests */
 
+    static void Test_Geometry(){
+
+        Geometry poly = wkt_to_geometry(ExampleWKT);
+
+        Console.WriteLine(String.Format("Test_Geometry:  Input WKT: {0}", ExampleWKT));
+        Console.WriteLine(String.Format("Test_Geometry: Output WKT: {0}", poly.ToString()));
+
+
+        poly = wkb_to_geometry(ExampleWKB);
+
+        Console.WriteLine(String.Format("Test_Geometry:  Input WKB: {0}", ExampleWKB));
+        Console.WriteLine(String.Format("Test_Geometry: Output WKB: {0}", WKBWriter.ToHex(poly.ToBinary())));
+
+        Console.WriteLine("");
+
+        return;
+
+    }
+
+
+
+
     static void Test_Simple(){
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
 
@@ -183,18 +261,14 @@ class Program{
         Console.WriteLine(String.Format("Test_Simple: Input WKT: {0}", wkt));
 
 
-        // Read polygon and create triangulation and print geometric info
+        Geometry aoi = wkt_to_geometry(wkt);
 
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
-
-        Polygon polygon = (Polygon) reader.Read(wkt);
-
-        Simple srs = new Simple(polygon, null);
+        Simple srs = new Simple(aoi, null);
 
 
         // Print diagnostics
 
-        Console.WriteLine(String.Format("Test_Simple: Polygon: {0}", polygon.ToString()));
+        Console.WriteLine(String.Format("Test_Simple: Polygon: {0}", aoi.ToString()));
 
         Console.WriteLine(String.Format("Test_Simple: {0}", srs.Print(2)));
 
@@ -210,18 +284,16 @@ class Program{
     static void Test_Weighted(){
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
 
         /* Deliberately ignoring the default number of candidates, bit hard to see what's 
         going on when you print 1,000 points! */
 
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
+        Geometry aoi = wkt_to_geometry(wkt);
 
-        Polygon polygon = (Polygon) reader.Read(wkt);
-
-        Simple srs = new Simple(polygon, null);
+        Simple srs = new Simple(aoi, null);
 
         srs.SelectionProbability(out double[] prob);
 
@@ -265,20 +337,18 @@ class Program{
     static void Test_Grid(){
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
+        Geometry aoi = wkt_to_geometry(wkt);
 
-        Polygon polygon = (Polygon) reader.Read(wkt);
-
-        Console.WriteLine(String.Format("Test_Grid: polygon: {0}", polygon.ToString()));
+        Console.WriteLine(String.Format("Test_Grid: aoi: {0}", aoi.ToString()));
 
 
-        Grid grid = new Grid(polygon, seed);
+        Grid grid = new Grid(aoi, seed);
 
 
-        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY);
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, aoi);
 
         Console.WriteLine(String.Format("Test_Grid: Count: {1}  sample: {0}", Print.MultiPointWKT(sample), sample.Count));
 
@@ -293,21 +363,19 @@ class Program{
     static void Test_KDTree(){
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
+        Geometry aoi = wkt_to_geometry(wkt);
 
-        Polygon polygon = (Polygon) reader.Read(wkt);
+        Grid grid = new Grid(aoi, seed);
 
-        Grid grid = new Grid(polygon, seed);
-
-        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY);
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, null);
 
 
         // Print Grid
 
-        Console.WriteLine(String.Format("Test_KDTree: polygon: {0}", polygon.ToString()));
+        Console.WriteLine(String.Format("Test_KDTree: aoi: {0}", aoi.ToString()));
         Console.WriteLine(String.Format("Test_KDTree: grid: {0}", Print.MultiPointWKT(sample)));
 
 
@@ -353,7 +421,7 @@ class Program{
     static void Test_SpatiallyBalanced(){
 
         if(wkt is null){
-            throw new ArgumentException("No WKT provided for input polygon");
+            throw new ArgumentException("No WKT provided for input AOI");
         }
 
         if(numplots is null){
@@ -361,18 +429,16 @@ class Program{
         }
 
 
-        // Read polygon and create triangulation
+        // Read AOI and create triangulation
 
-        var reader = new NetTopologySuite.IO.WKTReader();   // Change to WKBReader for WKB
+        Geometry aoi = wkt_to_geometry(wkt);
 
-        Polygon polygon = (Polygon) reader.Read(wkt);
-
-        Console.WriteLine(String.Format("Test_SpatiallyBalanced: polygon: {0}", polygon.ToString()));
+        Console.WriteLine(String.Format("Test_SpatiallyBalanced: aoi: {0}", aoi.ToString()));
 
 
-        // Randomly generate points inside the polygon, convert to a 'SampleUnit'.
+        // Randomly generate points inside the aoi, convert to a 'SampleUnit'.
 
-        Simple srs = new Simple(polygon, null);
+        Simple srs = new Simple(aoi, null);
 
         List<Coordinate> candidates = srs.Sample(NumCandidates, null);
 

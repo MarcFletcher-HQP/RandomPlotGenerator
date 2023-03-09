@@ -34,9 +34,16 @@ public class Simple {
 
     /* Constructor for WKT format - mostly used for testing.
     While not as compact, a WKT string is much more explicit. */
-    public Simple(in Polygon polygon, int? seed){
+    public Simple(in Geometry geom, int? seed){
 
-        var triangulator = new ConstrainedDelaunayTriangulator(polygon);
+        if(geom is not Polygon && geom is not MultiPolygon){
+
+            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
+
+        }
+
+
+        var triangulator = new ConstrainedDelaunayTriangulator(geom);
 
         triangulation = triangulator.GetTriangles(); 
 
