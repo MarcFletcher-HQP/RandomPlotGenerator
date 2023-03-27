@@ -1,4 +1,6 @@
 
+#define DEBUG
+#undef DEBUG
 
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
@@ -102,7 +104,7 @@ public class GeocortexReader{
 
             bool AddPolygon = true;
 
-            for(int j = 1; j < multi.Count; j++){
+            for(int j = 0; j < multi.Count; j++){
 
                 if(i == j){
                     continue;
@@ -128,6 +130,7 @@ public class GeocortexReader{
 
             }
 
+
             if(AddPolygon && holes.Count > 0){
 
                 Polygon exterior = (Polygon) multi[i];
@@ -145,6 +148,7 @@ public class GeocortexReader{
             }
 
         }
+
 
         return new MultiPolygon((Polygon[]) polygons.ToArray());
 
