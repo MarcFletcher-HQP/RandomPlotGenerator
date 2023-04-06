@@ -1,9 +1,10 @@
-﻿using NetTopologySuite.Geometries;
+﻿//using NetTopologySuite.Geometries;
 using RandomPlotGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using NetTopologySuite.Geometries;
 
 namespace SpatialFunction
 {
@@ -21,21 +22,28 @@ namespace SpatialFunction
         public void ProcessRequest(HttpContext context)
         {
             context.Response.ContentType = "text/plain";
-
-            if (!String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["poly"]))
-                wkt = HttpContext.Current.Request.QueryString["poly"];
-            else
-                wkt = "";
-
-            if (!String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["nrplots"]))
+            try
             {
-                if (int.TryParse(HttpContext.Current.Request.QueryString["nrplots"], out _))
-                    numplots = Convert.ToInt32(HttpContext.Current.Request.QueryString["nrplots"]);
+                if (!String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["poly"]))
+                    wkt = HttpContext.Current.Request.QueryString["poly"];
                 else
-                    numplots= 0;
+                    wkt = "";
+
+                if (!String.IsNullOrEmpty(HttpContext.Current.Request.QueryString["nrplots"]))
+                {
+                    if (int.TryParse(HttpContext.Current.Request.QueryString["nrplots"], out _))
+                        numplots = Convert.ToInt32(HttpContext.Current.Request.QueryString["nrplots"]);
+                    else
+                        numplots = 0;
+                }
+                else
+                    numplots = 0;
             }
-            else
-                numplots = 0;
+            catch (Exception ex)
+            {
+                context.Response.Write("An error occurred: " + ex.Message);
+            }
+
 
             try
             {
@@ -50,28 +58,34 @@ namespace SpatialFunction
                 }
                 else
                 {
-                    // Change to WKBReader for WKB
-                    var reader = new NetTopologySuite.IO.WKTReader();
-                    //wkt = ExampleWKT;
-                    Polygon polygon = (Polygon)reader.Read(wkt);
 
 
-                    // Randomly generate points inside the polygon, convert to a 'Point'.
-                    Simple srs = new Simple(polygon, null);
+                    Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
+
+                    if(aoi.GeometryType == "MultiPolygon" && GeocortexReader.check_for_interiors((MultiPolygon) aoi)){
+
+                        aoi = GeocortexReader.remove_interiors((MultiPolygon) aoi);
+
+                    }
+
+
+                    // Randomly generate points inside the aoi, convert to a 'Point'.
+
+                    Simple srs = new Simple(aoi, null);
+
                     List<Coordinate> candidates = srs.Sample(NumCandidates, null);
 
 
                     // Generate sample using the Local Pivotal Method
+
                     SpatiallyBalanced lpm = new SpatiallyBalanced(null, null);
-                    //numplots = ExampleNumPlots;
-                    List<Coordinate> sample = lpm.Sample(
-                        candidates, 
-                        (int)numplots, 
-                        NumCandidates*10);
+
+                    List<Coordinate> sample = lpm.Sample(candidates, (int) numplots, null);
 
 
                     // Return WKT for the sample
                     context.Response.Write(Print.MultiPointWKT(sample));
+
                 }
             }
             catch (Exception ex)

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="RandomPointGen" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="RandomPointGen" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This WebService generates random points based on a polygon input and a number of points.</wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="RandomPointGen">
+      <s:element name="ReturnPlots">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="polygonWKT" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nrPlots" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReturnPlotsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ReturnPlotsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ReturnPlotsSoapIn">
+    <wsdl:part name="parameters" element="tns:ReturnPlots" />
+  </wsdl:message>
+  <wsdl:message name="ReturnPlotsSoapOut">
+    <wsdl:part name="parameters" element="tns:ReturnPlotsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="RandomPlotGen1Soap">
+    <wsdl:operation name="ReturnPlots">
+      <wsdl:input message="tns:ReturnPlotsSoapIn" />
+      <wsdl:output message="tns:ReturnPlotsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="RandomPlotGen1Soap" type="tns:RandomPlotGen1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ReturnPlots">
+      <soap:operation soapAction="RandomPointGen/ReturnPlots" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="RandomPlotGen1Soap12" type="tns:RandomPlotGen1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ReturnPlots">
+      <soap12:operation soapAction="RandomPointGen/ReturnPlots" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="RandomPlotGen1">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This WebService generates random points based on a polygon input and a number of points.</wsdl:documentation>
+    <wsdl:port name="RandomPlotGen1Soap" binding="tns:RandomPlotGen1Soap">
+      <soap:address location="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx" />
+    </wsdl:port>
+    <wsdl:port name="RandomPlotGen1Soap12" binding="tns:RandomPlotGen1Soap12">
+      <soap12:address location="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

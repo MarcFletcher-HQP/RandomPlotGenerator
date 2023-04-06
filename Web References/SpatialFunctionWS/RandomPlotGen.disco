@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<discovery xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.xmlsoap.org/disco/">
+  <contractRef ref="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx?wsdl" docRef="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
+  <soap address="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx" xmlns:q1="RandomPointGen" binding="q1:RandomPlotGen1Soap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+  <soap address="http://hqpgispr02.fpq.internal/SpatialFunction/RandomPlotGen.asmx" xmlns:q2="RandomPointGen" binding="q2:RandomPlotGen1Soap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+</discovery>
