@@ -25,10 +25,10 @@ public class SpatiallyBalanced {
 
     public SpatiallyBalanced(int? seed, double? cutoff){
 
-        if (seed is not null){
-            rand = new Random((int) seed);
-        } else {
+        if (seed is null){
             rand = new Random();
+        } else {
+            rand = new Random((int) seed);
         }
 
         if(cutoff is null){

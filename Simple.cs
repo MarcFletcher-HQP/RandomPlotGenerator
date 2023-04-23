@@ -1,6 +1,6 @@
 
 #define DEBUG
-#undef DEBUG
+//#undef DEBUG
 
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Triangulate.Tri;
