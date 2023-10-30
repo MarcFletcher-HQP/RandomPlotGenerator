@@ -1,5 +1,8 @@
 ﻿
 
+#define DEBUG
+#undef DEBUG
+
 using NetTopologySuite.IO;
 using NetTopologySuite.Geometries;
 
@@ -15,9 +18,10 @@ class Program{
 
 
     /* Example Inputs */
-    static string ExampleWKT = "POLYGON ((513820.1 7017121, 513833.4 7017112, 513843.6 7017102, 513843.6 7017060, 513841.9 7017065, 513837.8 7017077, 513828 7017101, 513822.9 7017113, 513820.1 7017121))";
+
+    static string ExampleWKT = "POLYGON ((-2981357.75959235 17008002.7078413, -2981360.18802362 17008000.6885057, -2981382.32671075 17007983.897519, -2981434.05812414 17007943.8307399, -2981431.70959373 17007932.1878344, -2981428.40136424 17007902.3712427, -2981425.6918651 17007872.3926812, -2981426.39067164 17007831.1580494, -2981110.83535214 17007887.6359931, -2981080.82804729 17007893.0066019, -2981077.60797266 17007913.8325862, -2981074.06701706 17007949.3850259, -2981070.117229 17007986.6369803, -2981065.6711519 17008024.9149665, -2981060.30263498 17008062.2425068, -2981059.33219773 17008066.162734, -2981194.48707916 17008063.567988, -2981226.41497902 17008068.8072398, -2981344.24989674 17008013.9422043, -2981357.75959235 17008002.7078413))";
     static string ExampleWKB = "0103000000010000000900000066666666705C1F4100000040A8C45A419A999999A55C1F4100000000A6C45A4166666666CE5C1F4100000080A3C45A4166666666CE5C1F410000000099C45A419A999999C75C1F41000000409AC45A4133333333B75C1F41000000409DC45A4100000000905C1F4100000040A3C45A419A9999997B5C1F4100000040A6C45A4166666666705C1F4100000040A8C45A41";
-    static int ExampleNumPlots = 5;
+    static int ExampleNumPlots = 1000;
 
 
     /* Program Defaults */
@@ -126,6 +130,18 @@ class Program{
                 Test_SpatiallyBalanced();
 
             }
+
+            if(testall || args.Contains("Polygon")){
+
+                Test_Polygon();
+
+            }
+
+            if(testall || args.Contains("Rings")){
+
+                Test_Rings();
+
+            }
             
 
         }
@@ -134,61 +150,6 @@ class Program{
         return;
 
     }
-
-
-
-    /* Import Geometry */
-
-    static Geometry wkt_to_geometry(string wkt){
-
-        if(wkt is null){
-            throw new ArgumentException("No WKT provided for input AOI");
-        }
-
-
-        // Read aoi and create triangulation
-
-        var reader = new WKTReader();
-
-        Geometry geom = reader.Read(wkt);
-
-        if(geom is not Polygon && geom is not MultiPolygon){
-
-            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
-
-        }
-
-        return geom;
-
-    }
-
-
-
-    static Geometry wkb_to_geometry(string wkb){
-
-        if(wkb is null){
-            throw new ArgumentException("No WKB provided for input");
-        }
-
-
-        // Read aoi and create triangulation
-
-        var reader = new WKBReader();
-
-        byte[] hex = WKBReader.HexToBytes(wkb);
-
-        Geometry geom = reader.Read(hex);
-
-        if(geom is not Polygon && geom is not MultiPolygon){
-
-            throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
-
-        }
-
-        return geom;
-
-    }
-
 
 
 
@@ -206,7 +167,19 @@ class Program{
             throw new ArgumentException("Number of plots was not provided");
         }
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
+
+        #if DEBUG
+
+        Console.WriteLine(String.Format("Workflow_Survival: Is MultiPolygon: {0}  Has Interiors: {1}", aoi is MultiPolygon, GeocortexReader.check_for_interiors((MultiPolygon) aoi)));
+
+        #endif
+
+        if(aoi is MultiPolygon && GeocortexReader.check_for_interiors((MultiPolygon) aoi)){
+
+            aoi = GeocortexReader.remove_interiors((MultiPolygon) aoi);
+
+        }
 
 
         // Randomly generate points inside the aoi, convert to a 'Point'.
@@ -273,13 +246,13 @@ class Program{
 
     static void Test_Geometry(){
 
-        Geometry poly = wkt_to_geometry(ExampleWKT);
+        Geometry poly = GeocortexReader.wkt_to_geometry(ExampleWKT);
 
         Console.WriteLine(String.Format("Test_Geometry:  Input WKT: {0}", ExampleWKT));
         Console.WriteLine(String.Format("Test_Geometry: Output WKT: {0}", poly.ToString()));
 
 
-        poly = wkb_to_geometry(ExampleWKB);
+        poly = GeocortexReader.wkb_to_geometry(ExampleWKB);
 
         Console.WriteLine(String.Format("Test_Geometry:  Input WKB: {0}", ExampleWKB));
         Console.WriteLine(String.Format("Test_Geometry: Output WKB: {0}", WKBWriter.ToHex(poly.ToBinary())));
@@ -305,9 +278,9 @@ class Program{
         Console.WriteLine(String.Format("Test_Simple: Input WKT: {0}", wkt));
 
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
 
-        Simple srs = new Simple(aoi, null);
+        Simple srs = new Simple(aoi, 117);
 
 
         // Print diagnostics
@@ -335,9 +308,9 @@ class Program{
         /* Deliberately ignoring the default number of candidates, bit hard to see what's 
         going on when you print 1,000 points! */
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
 
-        Simple srs = new Simple(aoi, null);
+        Simple srs = new Simple(aoi, 117);
 
         srs.SelectionProbability(out double[] prob);
 
@@ -357,7 +330,7 @@ class Program{
 
         // Randomly pick triangles
 
-        int candidates = 10;
+        int candidates = 1000;
 
         List<int> index = wrs.Sample(candidates);
 
@@ -384,7 +357,7 @@ class Program{
             throw new ArgumentException("No WKT provided for input AOI");
         }
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
 
         Console.WriteLine(String.Format("Test_Grid: aoi: {0}", aoi.ToString()));
 
@@ -417,7 +390,7 @@ class Program{
             throw new ArgumentException("No WKT provided for input AOI");
         }
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
 
         Grid grid = new Grid(aoi, seed);
 
@@ -482,7 +455,7 @@ class Program{
 
         // Read AOI and create triangulation
 
-        Geometry aoi = wkt_to_geometry(wkt);
+        Geometry aoi = GeocortexReader.wkt_to_geometry(wkt);
 
         Console.WriteLine(String.Format("Test_SpatiallyBalanced: aoi: {0}", aoi.ToString()));
 
@@ -509,6 +482,58 @@ class Program{
 
         Console.WriteLine("");
 
+
+        return;
+
+    }
+
+
+
+    static void Test_Rings(){
+
+        LineString shell = (LineString) GeocortexReader.wkt_to_geometry("LINESTRING (0 0, 0 4, 4 4, 4 0, 0 0)");
+        LineString hole = (LineString) GeocortexReader.wkt_to_geometry("LINESTRING (1 1, 1 3, 3 3, 3 1, 1 1)");
+
+        hole = (LineString) hole.Reverse();
+
+        double shellarea = 0.0;
+        double holearea = 0.0;
+
+        for(int i = 0; i < shell.Count - 1; i++){
+            
+            shellarea += (shell[i].X - shell[i+1].X) * (shell[i].Y + shell[i+1].Y);
+
+        }
+
+        for(int i = 0; i < hole.Count - 1; i++){
+
+            holearea += (hole[i].X - hole[i+1].X) * (hole[i].Y + hole[i+1].Y);
+
+        }
+
+        Console.WriteLine(String.Format("Test_Rings: Shell Area: {0}  Hole Area: {1}", shellarea, holearea));
+        
+        return;
+
+    }
+
+
+
+    static void Test_Polygon(){
+
+        Polygon shell = (Polygon) GeocortexReader.wkt_to_geometry("POLYGON ((0 0, 0 4, 4 4, 4 0, 0 0))");
+        Polygon hole = (Polygon) GeocortexReader.wkt_to_geometry("POLYGON ((1 1, 1 3, 3 3, 3 1, 1 1))");
+
+        MultiPolygon multi = new MultiPolygon(new Polygon[] {shell, hole});
+
+        Geometry reconstructed = GeocortexReader.remove_interiors(multi);
+
+        Point test = new Point(new Coordinate(2, 2));
+
+        Console.WriteLine(String.Format("Test_Polygon: MultiPolygon contains holes: {0}", GeocortexReader.check_for_interiors(multi)));
+        Console.WriteLine(String.Format("Test_Polygon: POINT(2 2) in MultiPolygon: {0}", multi.Contains(test)));
+        Console.WriteLine(String.Format("Test_Polygon: Reconstructed MultiPolygon WKT: {0}", reconstructed.ToString()));
+        Console.WriteLine(String.Format("Test_Polygon: POINT(2 2) in reconstructed: {0}", reconstructed.Contains(test)));
 
         return;
 
