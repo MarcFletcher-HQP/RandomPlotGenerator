@@ -29,6 +29,7 @@ class Program{
     static int seed = 117;
     static double gridsizeX = 5.0;
     static double gridsizeY = 15.0;
+    static double gridMinSizeHex = 10;
 
 
 
@@ -223,6 +224,10 @@ class Program{
 
         double area = aoi.Area;
         double dx = Math.Sqrt(area / (int) numplots / (Math.Sqrt(3) / 2));
+
+        if(dx < gridMinSizeHex){
+            dx = gridMinSizeHex;
+        }
 
 
         // Generate a random (hexagonal) grid with the calculated spacing.
