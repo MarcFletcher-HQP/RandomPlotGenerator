@@ -68,9 +68,17 @@ class Program{
 
         if(args.Contains("Workflow")){
 
-            if(testall || args.Contains("Survival")){
+            if(testall || args.Contains("Random")){
 
-                string? response = Workflow_Survival();
+                string? response = Workflow_Random();
+
+                Console.WriteLine(response);
+
+            }
+
+            if(testall || args.Contains("Systematic")){
+
+                string? response = Workflow_Systematic();
 
                 Console.WriteLine(response);
 
@@ -186,7 +194,7 @@ class Program{
 
     /* Workflows */
 
-    static string? Workflow_Survival(){
+    static string? Workflow_Random(){
 
         // Check arguments
 
@@ -213,6 +221,42 @@ class Program{
         SpatiallyBalanced lpm = new SpatiallyBalanced(null, null);
 
         List<Coordinate> sample = lpm.Sample(candidates, (int) numplots, null);
+
+
+        // Return WKT for the sample
+
+        return Print.MultiPointWKT(sample);
+
+    }
+
+
+
+    static string? Workflow_Systematic(){
+
+        // Check arguments
+
+        if(wkt is null){
+            throw new ArgumentException("No WKT provided for input AOI");
+        }
+
+        if(numplots is null){
+            throw new ArgumentException("Number of plots was not provided");
+        }
+
+        Geometry aoi = wkt_to_geometry(wkt);
+
+
+        // A heuristic spacing
+
+        double area = aoi.Area;
+        double dx = Math.Sqrt(area / (int) numplots / (Math.Sqrt(3) / 2));
+
+
+        // Generate a random (hexagonal) grid with the calculated spacing.
+
+        Grid grid = new Grid(aoi, null);
+
+        List<Coordinate> sample = grid.Sample(dx, 0.0, aoi, Grid.Type.Hexagonal);
 
 
         // Return WKT for the sample
@@ -348,9 +392,16 @@ class Program{
         Grid grid = new Grid(aoi, seed);
 
 
-        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, aoi);
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, aoi, Grid.Type.Rectangular);
 
-        Console.WriteLine(String.Format("Test_Grid: Count: {1}  sample: {0}", Print.MultiPointWKT(sample), sample.Count));
+        Console.WriteLine(String.Format("Test_Grid: Rectangular: Count: {1}  sample: {0}", Print.MultiPointWKT(sample), sample.Count));
+
+        Console.WriteLine("");
+
+
+        List<Coordinate> samplehex = grid.Sample(gridsizeX, gridsizeY, aoi, Grid.Type.Hexagonal);
+
+        Console.WriteLine(String.Format("Test_Grid: Hexagonal: Count: {1}  sample: {0}", Print.MultiPointWKT(samplehex), samplehex.Count));
 
         Console.WriteLine("");
 
@@ -370,7 +421,7 @@ class Program{
 
         Grid grid = new Grid(aoi, seed);
 
-        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, null);
+        List<Coordinate> sample = grid.Sample(gridsizeX, gridsizeY, null, Grid.Type.Rectangular);
 
 
         // Print Grid

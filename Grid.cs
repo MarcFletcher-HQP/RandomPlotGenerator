@@ -18,6 +18,10 @@ public class Grid {
 
     private Random rng;
     private Envelope bbox;
+    public enum Type {
+        Rectangular,
+        Hexagonal
+    };
 
 
     public Grid(in Geometry aoi, int? seed){
@@ -37,11 +41,17 @@ public class Grid {
     }
 
 
-    public List<Coordinate> Sample(double dx, double dy, Geometry? aoi) {
+    public List<Coordinate> Sample(double dx, double dy, Geometry? aoi, Type type) {
 
         if(aoi is not null && aoi is not Polygon && aoi is not MultiPolygon){
 
             throw new ArgumentException("Input geometry must be either a Polygon, or a MultiPolygon!");
+
+        }
+
+        if(dy > 0 & (type == Type.Hexagonal)){
+
+            Console.WriteLine(String.Format("Grid::Sample: Argument 'dy' ignored when 'type' is 'Hexagonal'."));
 
         }
 
@@ -52,6 +62,11 @@ public class Grid {
         double ymax = bbox.MaxY;
 
 
+        if(type == Type.Hexagonal){
+            dy = Math.Sqrt(3) / 2 * dx;
+        }
+
+
         // Generate a random starting point and create a grid
 
         double x = rng.NextDouble() * dx + xmin;
@@ -59,20 +74,43 @@ public class Grid {
 
         Coordinate start = new Coordinate(x, y);
 
-
-        int n = Convert.ToInt32(Math.Truncate((xmax - start.X) / dx)) + 2;
-        int m = Convert.ToInt32(Math.Truncate((ymax - start.Y) / dy)) + 2;
-
         List<Coordinate> grid = new List<Coordinate>();
 
-        for( int i = 0; i < n; i++ ){
 
-            for( int j = 0; j < m; j++ ){
+        if(type == Type.Rectangular){
 
-                grid.Add(new Coordinate(start.X + i * dx, start.Y + j * dy));
+            int n = Convert.ToInt32(Math.Truncate((xmax - start.X) / dx)) + 2;
+            int m = Convert.ToInt32(Math.Truncate((ymax - start.Y) / dy)) + 2;
+
+            for( int i = 0; i < n; i++ ){
+
+                for( int j = 0; j < m; j++ ){
+
+                    grid.Add(new Coordinate(start.X + i * dx, start.Y + j * dy));
+
+                }
 
             }
 
+        } else if (type == Type.Hexagonal){
+
+            int n = Convert.ToInt32(Math.Truncate((xmax - start.X) / dx)) + 2;
+            int m = Convert.ToInt32(Math.Truncate((ymax - start.Y) / (2*dy))) + 2;
+
+            for( int i = 0; i < n; i++ ){
+
+                for( int j = 0; j < m; j++ ){
+
+                    grid.Add(new Coordinate(start.X + i * dx, start.Y + j * 2 * dy));
+                    grid.Add(new Coordinate(start.X + dx/2 + i * dx, start.Y + dy + j * 2 * dy));
+
+                }
+
+            }
+
+        } else {
+
+            throw new ArgumentException("How did you provide an invalid Type?");
         }
 
 
@@ -96,7 +134,7 @@ public class Grid {
 
             Point point = new Point(grid[i]);
 
-            if(point.Intersects(aoi)){
+            if(!point.Intersects(aoi)){
 
                 grid.RemoveAt(i);
 
